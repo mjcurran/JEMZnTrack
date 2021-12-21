@@ -1,0 +1,143 @@
+EvaluateX:
+  calibration:
+    kwargs: {}
+    module: src.EvaluateX
+    name: Calibration
+MaxEntropyL1:
+  trainer:
+    kwargs: {}
+    module: src.MaxEntropyL1
+    name: TrainerL1
+MaxEntropyL2:
+  trainer:
+    kwargs: {}
+    module: src.MaxEntropyL2
+    name: TrainerL2
+XEntropyAugmented:
+  trainer:
+    kwargs: {}
+    module: src.XEntropyAugmented
+    name: Trainer
+epochs: 1
+max-entropy-L1_augmented:
+  data_root: ./dataset
+  dataset: cifar_test
+  depth: 28
+  experiment: max-entropy-L1_augmented
+  n_steps: 20
+  norm: null
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  width: 10
+max-entropy-L2_augmented:
+  data_root: ./dataset
+  dataset: cifar_test
+  depth: 28
+  experiment: max-entropy-L2_augmented
+  n_steps: 20
+  norm: null
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  width: 10
+models:
+- experiment: x-entropy_augmented
+  notebook: train.ipynb
+  script: train.py
+- experiment: max-entropy-L1_augmented
+  notebook: train_max_entropy_L1.ipynb
+  script: train_max_entropy_L1.py
+- experiment: max-entropy-L2_augmented
+  notebook: train_max_entropy_L2.ipynb
+  script: train_max_entropy_L2.py
+seed: 123456
+train_args:
+  batch_size: 64
+  ckpt_every: 10
+  clf_only: false
+  data_root: ./dataset
+  dataset: cifar10
+  depth: 28
+  dropout_rate: 0.0
+  eval_every: 1
+  experiment: x-entropy_augmented
+  labels_per_class: -1
+  load_path: null
+  lr: 0.0001
+  n_classes: 10
+  n_epochs: 1
+  n_steps: 20
+  n_valid: 5000
+  norm: null
+  print_every: 100
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  weight_decay: 0.0
+  width: 10
+train_argsL1:
+  batch_size: 64
+  ckpt_every: 10
+  clf_only: false
+  data_root: ./dataset
+  dataset: cifar10
+  depth: 28
+  dropout_rate: 0.0
+  eval_every: 1
+  experiment: max-entropy-L1_augmented
+  labels_per_class: -1
+  load_path: null
+  lr: 0.0001
+  n_classes: 10
+  n_epochs: 1
+  n_steps: 20
+  n_valid: 5000
+  norm: null
+  print_every: 100
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  weight_decay: 0.0
+  width: 10
+train_argsL2:
+  batch_size: 64
+  ckpt_every: 10
+  clf_only: false
+  data_root: ./dataset
+  dataset: cifar10
+  depth: 28
+  dropout_rate: 0.0
+  eval_every: 1
+  experiment: max-entropy-L2_augmented
+  labels_per_class: -1
+  load_path: null
+  lr: 0.0001
+  n_classes: 10
+  n_epochs: 1
+  n_steps: 20
+  n_valid: 5000
+  norm: null
+  print_every: 100
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  weight_decay: 0.0
+  width: 10
+x-entropy_augmented:
+  data_root: ./dataset
+  dataset: cifar_test
+  depth: 28
+  experiment: x-entropy_augmented
+  n_steps: 20
+  norm: null
+  print_to_log: false
+  save_dir: ./experiment
+  seed: 123456
+  sigma: 0.03
+  width: 10

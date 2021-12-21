@@ -1,0 +1,38 @@
+[project]
+name = "Joint Energy Models"
+version = ""
+description = ""
+authors = [
+    {name = "Will Grathwohl ", email = "wgrathwohl@gmail.com"},
+    {name = "Chris Sweet", email = "csweet1@nd.edu"},
+    {name = "Priscila Moreira", email = "pmoreira@nd.edu"},
+    {name = "James Sweet", email = "jsweet@nd.edu"},
+]
+dependencies = [
+    "torch",
+    "torchvision",
+    "jupyter",
+    "dvc[gdrive]",
+    "pandas",
+    "zntrack~=0.2",
+]
+requires-python = ">=3.7.1,<3.10"
+license = {text = "Apache-2.0"}
+classifiers = [
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Framework :: Jupyter",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English"
+]
+
+[project.urls]
+repository = "https://github.com/nd-crane/joint-energy-models"
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
+[tool.pdm.scripts]
+repro = "dvc repro -m --pull"

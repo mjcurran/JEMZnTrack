@@ -1,0 +1,7 @@
+[core]
+    remote = drive
+    analytics = false
+['remote "drive"']
+    url = gdrive://1mrV235t8Kbv-kt1728i6iXdyUioyW20e
+['remote "afs"']
+    url = /afs/crc.nd.edu/user/j/jsweet/Public/dvc/joint-energy-models

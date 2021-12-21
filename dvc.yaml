@@ -1,0 +1,104 @@
+stages:
+  train_args:
+    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
+      \ name='train_args').run()\" "
+    deps:
+    - src/train_args.py
+    params:
+    - train_args
+    metrics:
+    - nodes/train_args/metrics_no_cache.json:
+        cache: false
+  XEntropyAugmented:
+    cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented(load=True,\
+      \ name='XEntropyAugmented').run()\" "
+    deps:
+    - nodes/train_args/metrics_no_cache.json
+    - src/XEntropyAugmented.py
+    params:
+    - XEntropyAugmented
+    metrics:
+    - nodes/XEntropyAugmented/metrics_no_cache.json:
+        cache: false
+  train_argsL1:
+    cmd: "python3 -c \"from src.train_argsL1 import train_argsL1; train_argsL1(load=True,\
+      \ name='train_argsL1').run()\" "
+    deps:
+    - src/train_argsL1.py
+    params:
+    - train_argsL1
+    metrics:
+    - nodes/train_argsL1/metrics_no_cache.json:
+        cache: false
+  MaxEntropyL1:
+    cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1(load=True,\
+      \ name='MaxEntropyL1').run()\" "
+    deps:
+    - nodes/train_argsL1/metrics_no_cache.json
+    - src/MaxEntropyL1.py
+    params:
+    - MaxEntropyL1
+    metrics:
+    - nodes/MaxEntropyL1/metrics_no_cache.json:
+        cache: false
+  train_argsL2:
+    cmd: "python3 -c \"from src.train_argsL2 import train_argsL2; train_argsL2(load=True,\
+      \ name='train_argsL2').run()\" "
+    deps:
+    - src/train_argsL2.py
+    params:
+    - train_argsL2
+    metrics:
+    - nodes/train_argsL2/metrics_no_cache.json:
+        cache: false
+  MaxEntropyL2:
+    cmd: "python3 -c \"from src.MaxEntropyL2 import MaxEntropyL2; MaxEntropyL2(load=True,\
+      \ name='MaxEntropyL2').run()\" "
+    deps:
+    - nodes/train_argsL2/metrics_no_cache.json
+    - src/MaxEntropyL2.py
+    params:
+    - MaxEntropyL2
+    metrics:
+    - nodes/MaxEntropyL2/metrics_no_cache.json:
+        cache: false
+  x-entropy_augmented:
+    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='x-entropy_augmented').run()\"\
+      \ "
+    deps:
+    - src/eval_args.py
+    params:
+    - x-entropy_augmented
+    metrics:
+    - nodes/x-entropy_augmented/metrics_no_cache.json:
+        cache: false
+  max-entropy-L1_augmented:
+    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='max-entropy-L1_augmented').run()\"\
+      \ "
+    deps:
+    - src/eval_args.py
+    params:
+    - max-entropy-L1_augmented
+    metrics:
+    - nodes/max-entropy-L1_augmented/metrics_no_cache.json:
+        cache: false
+  max-entropy-L2_augmented:
+    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='max-entropy-L2_augmented').run()\"\
+      \ "
+    deps:
+    - src/eval_args.py
+    params:
+    - max-entropy-L2_augmented
+    metrics:
+    - nodes/max-entropy-L2_augmented/metrics_no_cache.json:
+        cache: false
+  EvaluateX:
+    cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX(load=True, name='EvaluateX').run()\"\
+      \ "
+    deps:
+    - nodes/max-entropy-L1_augmented/metrics_no_cache.json
+    - nodes/max-entropy-L2_augmented/metrics_no_cache.json
+    - nodes/x-entropy_augmented/metrics_no_cache.json
+    - src/EvaluateX.py
+    params:
+    - EvaluateX
