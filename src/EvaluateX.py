@@ -404,7 +404,7 @@ class Trainer(Base):
         return scores
 
 
-# In[102]:
+# In[124]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -432,7 +432,7 @@ class XEntropyAugmented:
         
 
 
-# In[103]:
+# In[125]:
 
 
 # add/change parameters for this stage
@@ -604,7 +604,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[105]:
+# In[127]:
 
 
 @Node()
@@ -777,7 +777,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[107]:
+# In[129]:
 
 
 class F(nn.Module):
@@ -811,7 +811,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[108]:
+# In[ ]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -944,7 +944,9 @@ class Calibration(Base):
         # save calibration  in a text file
             
         pd.DataFrame({'accuracy': accu, 'ECE': ECE}).to_csv(path_or_buf=os.path.join(args.save_dir, args.experiment) + "_calibration.csv", index_label="index")
-
+        outputcsv = os.path.join(args.save_dir, args.experiment) + "_calibration.csv"
+        return outputcsv
+        
         
     def compute(self, inp):
         args = inp
@@ -975,10 +977,11 @@ class Calibration(Base):
         f = f.to(device)
 
         # do calibration
-        self.calibration(f, args, device)
+        resultfile = self.calibration(f, args, device)
+        return resultfile
 
 
-# In[109]:
+# In[120]:
 
 
 #stage EvaluateX
@@ -1015,7 +1018,7 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[110]:
+# In[121]:
 
 
 #declare all the args for evaluation stage
