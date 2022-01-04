@@ -518,8 +518,8 @@ class MaxEntropyL1:
         self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
     
     def run(self):
-        self.result = self.args.result
-        self.result += self.trainer.compute(self.args)
+        #self.result = self.args.result
+        self.result = self.trainer.compute(self.args)
         
 
 
@@ -640,7 +640,7 @@ class TrainerL1(Base):
 
             # do checkpointing
             if epoch % args.ckpt_every == 0:
-                checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
             
             # Print performance assesment 
             if epoch % args.eval_every == 0:
@@ -764,8 +764,8 @@ class MaxEntropyL2:
         self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
     
     def run(self):
-        self.result = self.args.result
-        self.result += self.trainer.compute(self.args)
+        #self.result = self.args.result
+        self.result = self.trainer.compute(self.args)
         
 
 
@@ -887,7 +887,7 @@ class TrainerL2(Base):
 
             # do checkpointing
             if epoch % args.ckpt_every == 0:
-                checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
 
             
             # Print performance assesment 
@@ -1117,7 +1117,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[23]:
+# In[22]:
 
 
 @Node()
@@ -1142,7 +1142,7 @@ class EvaluateX:
     
     def run(self):
         for arg in self.args:
-            self.result += arg.name
+            self.result = arg.name
             self.result += self.calibration.compute(arg)
             
         #result0 = arg0.experiment
@@ -1150,6 +1150,6 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[24]:
+# In[23]:
 
 
