@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import wideresnet
 import pdb
+import json
 from matplotlib import pyplot as plt
 from numpy import genfromtxt
 import yaml
@@ -502,7 +503,7 @@ class train_argsL1():
         self.result = self.experiment
 
 
-# In[11]:
+# In[26]:
 
 
 
@@ -523,7 +524,7 @@ class MaxEntropyL1:
         
 
 
-# In[12]:
+# In[27]:
 
 
 
@@ -748,7 +749,7 @@ class train_argsL2():
         self.result = self.experiment
 
 
-# In[15]:
+# In[28]:
 
 
 
@@ -769,7 +770,7 @@ class MaxEntropyL2:
         
 
 
-# In[16]:
+# In[29]:
 
 
 
@@ -1117,7 +1118,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[22]:
+# In[30]:
 
 
 @Node()

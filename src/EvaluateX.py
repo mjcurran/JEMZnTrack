@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import wideresnet
 import pdb
+import json
 from matplotlib import pyplot as plt
 from numpy import genfromtxt
 import yaml
@@ -87,7 +88,7 @@ class train_args():
     
 
 
-# In[3]:
+# In[33]:
 
 
 class Base:
@@ -95,7 +96,7 @@ class Base:
         raise NotImplementedError
 
 
-# In[4]:
+# In[34]:
 
 
 # get random subset of data
@@ -114,7 +115,7 @@ class DataSubset(Dataset):
         return len(self.inds)
 
 
-# In[5]:
+# In[35]:
 
 
 # setup Wide_ResNet
@@ -131,7 +132,7 @@ class FTrain(nn.Module):
         return self.class_output(penult_z).squeeze()
 
 
-# In[6]:
+# In[36]:
 
 
 class JEMUtils:
@@ -265,7 +266,7 @@ class JEMUtils:
     
 
 
-# In[7]:
+# In[37]:
 
 
 
@@ -401,7 +402,7 @@ class Trainer(Base):
         return scores
 
 
-# In[8]:
+# In[38]:
 
 
 
@@ -427,7 +428,7 @@ class XEntropyAugmented:
         
 
 
-# In[9]:
+# In[39]:
 
 
 @Node()
@@ -502,7 +503,7 @@ class train_argsL1():
         self.result = self.experiment
 
 
-# In[11]:
+# In[41]:
 
 
 
@@ -523,7 +524,7 @@ class MaxEntropyL1:
         
 
 
-# In[12]:
+# In[42]:
 
 
 
@@ -748,7 +749,7 @@ class train_argsL2():
         self.result = self.experiment
 
 
-# In[15]:
+# In[28]:
 
 
 
@@ -769,7 +770,7 @@ class MaxEntropyL2:
         
 
 
-# In[16]:
+# In[29]:
 
 
 
@@ -1117,7 +1118,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[22]:
+# In[30]:
 
 
 @Node()
