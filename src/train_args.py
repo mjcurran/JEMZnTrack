@@ -402,7 +402,7 @@ class Trainer(Base):
         return scores
 
 
-# In[56]:
+# In[64]:
 
 
 
@@ -428,7 +428,7 @@ class XEntropyAugmented:
         
 
 
-# In[39]:
+# In[65]:
 
 
 @Node()
@@ -503,7 +503,7 @@ class train_argsL1():
         self.result = self.experiment
 
 
-# In[58]:
+# In[67]:
 
 
 
@@ -674,7 +674,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[43]:
+# In[68]:
 
 
 @Node()
@@ -749,7 +749,7 @@ class train_argsL2():
         self.result = self.experiment
 
 
-# In[60]:
+# In[70]:
 
 
 
@@ -922,7 +922,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[47]:
+# In[71]:
 
 
 class F(nn.Module):
@@ -956,7 +956,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[61]:
+# In[72]:
 
 
 @Node()
@@ -976,6 +976,7 @@ class eval_args():
     save_dir = dvc.params()
     print_to_log = dvc.params()
     uncond = dvc.params()
+    load_path = dvc.params()
     
     result = zn.metrics()
     
@@ -1119,7 +1120,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[62]:
+# In[73]:
 
 
 @Node()
@@ -1152,6 +1153,6 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[53]:
+# In[74]:
 
 
