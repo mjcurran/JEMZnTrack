@@ -1,0 +1,109 @@
+{
+    "train_args": {},
+    "XEntropyAugmented": {
+        "deps": {
+            "args": {
+                "cls": [
+                    "src.train_args",
+                    "train_args",
+                    "train_args"
+                ]
+            }
+        },
+        "outs": {
+            "model": {
+                "Path": "experiment/x-entropy_augmented/last_ckpt.pt"
+            }
+        }
+    },
+    "train_argsL1": {},
+    "MaxEntropyL1": {
+        "deps": {
+            "args": {
+                "cls": [
+                    "src.train_argsL1",
+                    "train_argsL1",
+                    "train_argsL1"
+                ]
+            }
+        },
+        "outs": {
+            "model": {
+                "Path": "experiment/max-entropy-L1_augmented/last_ckpt.pt"
+            }
+        }
+    },
+    "train_argsL2": {},
+    "MaxEntropyL2": {
+        "deps": {
+            "args": {
+                "cls": [
+                    "src.train_argsL2",
+                    "train_argsL2",
+                    "train_argsL2"
+                ]
+            }
+        },
+        "outs": {
+            "model": {
+                "Path": "experiment/max-entropy-L2_augmented/last_ckpt.pt"
+            }
+        }
+    },
+    "x-entropy_augmented": {},
+    "max-entropy-L1_augmented": {},
+    "max-entropy-L2_augmented": {},
+    "EvaluateX": {
+        "deps": {
+            "args": [
+                {
+                    "cls": [
+                        "src.eval_args",
+                        "eval_args",
+                        "x-entropy_augmented"
+                    ]
+                },
+                {
+                    "cls": [
+                        "src.eval_args",
+                        "eval_args",
+                        "max-entropy-L1_augmented"
+                    ]
+                },
+                {
+                    "cls": [
+                        "src.eval_args",
+                        "eval_args",
+                        "max-entropy-L2_augmented"
+                    ]
+                }
+            ],
+            "models": [
+                {
+                    "cls": [
+                        "src.XEntropyAugmented",
+                        "XEntropyAugmented",
+                        "XEntropyAugmented"
+                    ]
+                },
+                {
+                    "cls": [
+                        "src.MaxEntropyL1",
+                        "MaxEntropyL1",
+                        "MaxEntropyL1"
+                    ]
+                },
+                {
+                    "cls": [
+                        "src.MaxEntropyL2",
+                        "MaxEntropyL2",
+                        "MaxEntropyL2"
+                    ]
+                }
+            ]
+        },
+        "outs": {
+            "result": null
+        }
+    }
+}

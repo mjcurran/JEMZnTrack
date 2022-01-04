@@ -20,6 +20,8 @@ stages:
     metrics:
     - nodes/XEntropyAugmented/metrics_no_cache.json:
         cache: false
+    outs:
+    - experiment/x-entropy_augmented/last_ckpt.pt
   train_argsL1:
     cmd: "python3 -c \"from src.train_argsL1 import train_argsL1; train_argsL1(load=True,\
       \ name='train_argsL1').run()\" "
@@ -41,6 +43,8 @@ stages:
     metrics:
     - nodes/MaxEntropyL1/metrics_no_cache.json:
         cache: false
+    outs:
+    - experiment/max-entropy-L1_augmented/last_ckpt.pt
   train_argsL2:
     cmd: "python3 -c \"from src.train_argsL2 import train_argsL2; train_argsL2(load=True,\
       \ name='train_argsL2').run()\" "
@@ -62,6 +66,8 @@ stages:
     metrics:
     - nodes/MaxEntropyL2/metrics_no_cache.json:
         cache: false
+    outs:
+    - experiment/max-entropy-L2_augmented/last_ckpt.pt
   x-entropy_augmented:
     cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='x-entropy_augmented').run()\"\
       \ "
@@ -96,6 +102,12 @@ stages:
     cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX(load=True, name='EvaluateX').run()\"\
       \ "
     deps:
+    - experiment/max-entropy-L1_augmented/last_ckpt.pt
+    - experiment/max-entropy-L2_augmented/last_ckpt.pt
+    - experiment/x-entropy_augmented/last_ckpt.pt
+    - nodes/MaxEntropyL1/metrics_no_cache.json
+    - nodes/MaxEntropyL2/metrics_no_cache.json
+    - nodes/XEntropyAugmented/metrics_no_cache.json
     - nodes/max-entropy-L1_augmented/metrics_no_cache.json
     - nodes/max-entropy-L2_augmented/metrics_no_cache.json
     - nodes/x-entropy_augmented/metrics_no_cache.json
