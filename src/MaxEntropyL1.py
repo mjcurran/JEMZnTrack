@@ -14,6 +14,7 @@ import yaml
 from pathlib import Path
 from zntrack import ZnTrackProject, Node, config, dvc, zn
 from tqdm import tqdm
+import pandas as pd
 
 
 @Node()
@@ -270,7 +271,7 @@ class JEMUtils:
 # In[37]:
 
 
-
+# basic training from train.ipynb
 class Trainer(Base):
     
     def compute(self, inp):
@@ -406,7 +407,9 @@ class Trainer(Base):
 # In[102]:
 
 
-
+#Do the operations from train.ipynb and track in dvc
+#dependency is train_args stage with default name
+#outs is the path to the last_ckpt.pt model file, which serves as a dependency to the evaluation stage
 
 @Node()
 class XEntropyAugmented:
@@ -429,9 +432,10 @@ class XEntropyAugmented:
         
 
 
-# In[91]:
+# In[103]:
 
 
+# add/change parameters for this stage
 @Node()
 class MaxEntropyL1:
     args: train_args = dvc.deps(train_args(load=True, name="train_argsL1"))
@@ -452,6 +456,7 @@ class MaxEntropyL1:
 # In[42]:
 
 
+#trainer class for MaxEntropyL1 stage's compute function
 
 class TrainerL1(Base):
     
@@ -599,7 +604,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[93]:
+# In[105]:
 
 
 @Node()
@@ -622,6 +627,7 @@ class MaxEntropyL2:
 # In[46]:
 
 
+#compute class for the above stage
 
 class TrainerL2(Base):
     
@@ -771,7 +777,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[95]:
+# In[107]:
 
 
 class F(nn.Module):
@@ -805,8 +811,10 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[96]:
+# In[108]:
 
+
+#class to hold the parameters for the evaluate calibration stage
 
 @Node()
 
@@ -862,6 +870,7 @@ class eval_args():
 # In[51]:
 
 
+# compute class for the evaluation stage
 
 class Calibration(Base):
     
@@ -969,8 +978,12 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[97]:
+# In[109]:
 
+
+#stage EvaluateX
+#multiple dependencies of eval_args with appropriate names for each stage they are testing
+# and the model files from the other stages so the dependency graph flows in the correct order
 
 @Node()
 class EvaluateX:
@@ -1002,6 +1015,8 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[98]:
+# In[110]:
 
+
+#declare all the args for evaluation stage
 
