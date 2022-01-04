@@ -13,6 +13,7 @@ from numpy import genfromtxt
 import yaml
 from pathlib import Path
 from zntrack import ZnTrackProject, Node, config, dvc, zn
+from tqdm import tqdm
 
 
 @Node()
@@ -402,7 +403,7 @@ class Trainer(Base):
         return scores
 
 
-# In[77]:
+# In[102]:
 
 
 
@@ -428,88 +429,12 @@ class XEntropyAugmented:
         
 
 
-# In[78]:
-
-
-@Node()
-class train_argsL1():
-    # define params
-    # this will write them to params.yaml
-    experiment = dvc.params()
-    dataset = dvc.params()
-    n_classes = dvc.params()
-    n_steps = dvc.params()
-    width = dvc.params()
-    depth = dvc.params()
-    sigma = dvc.params()
-    data_root = dvc.params()
-    seed = dvc.params()
-    lr = dvc.params()
-    clf_only = dvc.params()
-    labels_per_class = dvc.params()
-    batch_size = dvc.params()
-    n_epochs = dvc.params()
-    dropout_rate = dvc.params()
-    weight_decay = dvc.params()
-    norm = dvc.params()
-    save_dir = dvc.params()
-    ckpt_every = dvc.params()
-    eval_every = dvc.params()
-    print_every = dvc.params()
-    load_path = dvc.params()
-    print_to_log = dvc.params()
-    n_valid = dvc.params()
-    
-    result = zn.metrics()
-    
-    def __call__(self, param_dict):
-        # set defaults
-        self.experiment = "energy_model"
-        self.dataset = "cifar10"
-        self.n_classes = 10
-        self.n_steps = 20
-        self.width = 10 # wide-resnet widen_factor
-        self.depth = 28  # wide-resnet depth
-        self.sigma = .03 # image transformation
-        self.data_root = "./dataset" 
-        self.seed = JEMUtils.get_parameter("seed", 1)
-        # optimization
-        self.lr = 1e-4
-        self.clf_only = False #action="store_true", help="If set, then only train the classifier")
-        self.labels_per_class = -1# help="number of labeled examples per class, if zero then use all labels")
-        self.batch_size = 64
-        self.n_epochs = JEMUtils.get_parameter("epochs", 10)
-        # regularization
-        self.dropout_rate = 0.0
-        self.sigma = 3e-2 # help="stddev of gaussian noise to add to input, .03 works but .1 is more stable")
-        self.weight_decay = 0.0
-        # network
-        self.norm = None # choices=[None, "norm", "batch", "instance", "layer", "act"], help="norm to add to weights, none works fine")
-        # logging + evaluation
-        self.save_dir = './experiment'
-        self.ckpt_every = 1 # help="Epochs between checkpoint save")
-        self.eval_every = 1 # help="Epochs between evaluation")
-        self.print_every = 100 # help="Iterations between print")
-        self.load_path = None # path for checkpoint to load
-        self.print_to_log = False #", action="store_true", help="If true, directs std-out to log file")
-        self.n_valid = 5000 # number of validation images
-        
-        # set from inline dict
-        for key in param_dict:
-            #print(key, '->', param_dict[key])
-            setattr(self, key, param_dict[key])
-            
-    def run(self):
-        self.result = self.experiment
-
-
-# In[67]:
-
+# In[91]:
 
 
 @Node()
 class MaxEntropyL1:
-    args: train_argsL1 = dvc.deps(train_argsL1(load=True))
+    args: train_args = dvc.deps(train_args(load=True, name="train_argsL1"))
     trainer: Base = zn.Method()
     result = zn.metrics()
     model: Path = dvc.outs()
@@ -674,88 +599,12 @@ class TrainerL1(Base):
         return scores
 
 
-# In[68]:
-
-
-@Node()
-class train_argsL2():
-    # define params
-    # this will write them to params.yaml
-    experiment = dvc.params()
-    dataset = dvc.params()
-    n_classes = dvc.params()
-    n_steps = dvc.params()
-    width = dvc.params()
-    depth = dvc.params()
-    sigma = dvc.params()
-    data_root = dvc.params()
-    seed = dvc.params()
-    lr = dvc.params()
-    clf_only = dvc.params()
-    labels_per_class = dvc.params()
-    batch_size = dvc.params()
-    n_epochs = dvc.params()
-    dropout_rate = dvc.params()
-    weight_decay = dvc.params()
-    norm = dvc.params()
-    save_dir = dvc.params()
-    ckpt_every = dvc.params()
-    eval_every = dvc.params()
-    print_every = dvc.params()
-    load_path = dvc.params()
-    print_to_log = dvc.params()
-    n_valid = dvc.params()
-    
-    result = zn.metrics()
-    
-    def __call__(self, param_dict):
-        # set defaults
-        self.experiment = "energy_model"
-        self.dataset = "cifar10"
-        self.n_classes = 10
-        self.n_steps = 20
-        self.width = 10 # wide-resnet widen_factor
-        self.depth = 28  # wide-resnet depth
-        self.sigma = .03 # image transformation
-        self.data_root = "./dataset" 
-        self.seed = JEMUtils.get_parameter("seed", 1)
-        # optimization
-        self.lr = 1e-4
-        self.clf_only = False #action="store_true", help="If set, then only train the classifier")
-        self.labels_per_class = -1# help="number of labeled examples per class, if zero then use all labels")
-        self.batch_size = 64
-        self.n_epochs = JEMUtils.get_parameter("epochs", 10)
-        # regularization
-        self.dropout_rate = 0.0
-        self.sigma = 3e-2 # help="stddev of gaussian noise to add to input, .03 works but .1 is more stable")
-        self.weight_decay = 0.0
-        # network
-        self.norm = None # choices=[None, "norm", "batch", "instance", "layer", "act"], help="norm to add to weights, none works fine")
-        # logging + evaluation
-        self.save_dir = './experiment'
-        self.ckpt_every = 1 # help="Epochs between checkpoint save")
-        self.eval_every = 1 # help="Epochs between evaluation")
-        self.print_every = 100 # help="Iterations between print")
-        self.load_path = None # path for checkpoint to load
-        self.print_to_log = False #", action="store_true", help="If true, directs std-out to log file")
-        self.n_valid = 5000 # number of validation images
-        
-        # set from inline dict
-        for key in param_dict:
-            #print(key, '->', param_dict[key])
-            setattr(self, key, param_dict[key])
-            
-    def run(self):
-        self.result = self.experiment
-
-
-# In[70]:
-
+# In[93]:
 
 
 @Node()
 class MaxEntropyL2:
-    args: train_argsL2 = dvc.deps(train_argsL2(load=True))
+    args: train_args = dvc.deps(train_args(load=True, name="train_argsL2"))
     trainer: Base = zn.Method()
     result = zn.metrics()
     model: Path = dvc.outs()
@@ -922,7 +771,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[71]:
+# In[95]:
 
 
 class F(nn.Module):
@@ -956,7 +805,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[72]:
+# In[96]:
 
 
 @Node()
@@ -1120,7 +969,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[73]:
+# In[97]:
 
 
 @Node()
@@ -1153,6 +1002,6 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[74]:
+# In[98]:
 
 

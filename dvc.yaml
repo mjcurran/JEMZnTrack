@@ -23,10 +23,10 @@ stages:
     outs:
     - experiment/x-entropy_augmented/last_ckpt.pt
   train_argsL1:
-    cmd: "python3 -c \"from src.train_argsL1 import train_argsL1; train_argsL1(load=True,\
+    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
       \ name='train_argsL1').run()\" "
     deps:
-    - src/train_argsL1.py
+    - src/train_args.py
     params:
     - train_argsL1
     metrics:
@@ -46,10 +46,10 @@ stages:
     outs:
     - experiment/max-entropy-L1_augmented/last_ckpt.pt
   train_argsL2:
-    cmd: "python3 -c \"from src.train_argsL2 import train_argsL2; train_argsL2(load=True,\
+    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
       \ name='train_argsL2').run()\" "
     deps:
-    - src/train_argsL2.py
+    - src/train_args.py
     params:
     - train_argsL2
     metrics:

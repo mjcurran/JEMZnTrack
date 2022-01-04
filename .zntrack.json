@@ -21,8 +21,8 @@
         "deps": {
             "args": {
                 "cls": [
-                    "src.train_argsL1",
-                    "train_argsL1",
+                    "src.train_args",
+                    "train_args",
                     "train_argsL1"
                 ]
             }
@@ -38,8 +38,8 @@
         "deps": {
             "args": {
                 "cls": [
-                    "src.train_argsL2",
-                    "train_argsL2",
+                    "src.train_args",
+                    "train_args",
                     "train_argsL2"
                 ]
             }
