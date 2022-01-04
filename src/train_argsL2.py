@@ -402,7 +402,7 @@ class Trainer(Base):
         return scores
 
 
-# In[38]:
+# In[56]:
 
 
 
@@ -674,7 +674,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[13]:
+# In[43]:
 
 
 @Node()
@@ -749,7 +749,7 @@ class train_argsL2():
         self.result = self.experiment
 
 
-# In[28]:
+# In[45]:
 
 
 
@@ -770,7 +770,7 @@ class MaxEntropyL2:
         
 
 
-# In[29]:
+# In[46]:
 
 
 
@@ -922,7 +922,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[17]:
+# In[47]:
 
 
 class F(nn.Module):
@@ -941,7 +941,7 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[19]:
+# In[49]:
 
 
 class CCF(F):
@@ -956,7 +956,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[20]:
+# In[50]:
 
 
 @Node()
@@ -1008,7 +1008,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[21]:
+# In[51]:
 
 
 
@@ -1118,7 +1118,7 @@ class Calibration(Base):
         self.calibration(f, args, device)
 
 
-# In[30]:
+# In[52]:
 
 
 @Node()
@@ -1143,7 +1143,7 @@ class EvaluateX:
     
     def run(self):
         for arg in self.args:
-            self.result = arg.name
+            #self.result = arg.name
             self.result += self.calibration.compute(arg)
             
         #result0 = arg0.experiment
@@ -1151,6 +1151,6 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[23]:
+# In[53]:
 
 
