@@ -30,6 +30,7 @@ max-entropy-L1_augmented:
   save_dir: ./experiment
   seed: 123456
   sigma: 0.03
+  uncond: false
   width: 10
 max-entropy-L2_augmented:
   data_root: ./dataset
@@ -42,6 +43,7 @@ max-entropy-L2_augmented:
   save_dir: ./experiment
   seed: 123456
   sigma: 0.03
+  uncond: false
   width: 10
 models:
 - experiment: x-entropy_augmented
@@ -140,4 +142,5 @@ x-entropy_augmented:
   save_dir: ./experiment
   seed: 123456
   sigma: 0.03
+  uncond: false
   width: 10
