@@ -404,7 +404,7 @@ class Trainer(Base):
         return scores
 
 
-# In[113]:
+# In[124]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -432,7 +432,7 @@ class XEntropyAugmented:
         
 
 
-# In[114]:
+# In[125]:
 
 
 # add/change parameters for this stage
@@ -604,7 +604,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[116]:
+# In[127]:
 
 
 @Node()
@@ -777,7 +777,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[118]:
+# In[129]:
 
 
 class F(nn.Module):
@@ -811,7 +811,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[119]:
+# In[130]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -867,7 +867,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[51]:
+# In[131]:
 
 
 # compute class for the evaluation stage
@@ -981,7 +981,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[120]:
+# In[132]:
 
 
 #stage EvaluateX
@@ -1007,6 +1007,7 @@ class EvaluateX:
             
     def __call__(self, operation):
         self.calibration = operation
+        self.result = "EvaluateX"
     
     def run(self):
         for arg in self.args:
@@ -1018,7 +1019,7 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[121]:
+# In[133]:
 
 
 #declare all the args for evaluation stage

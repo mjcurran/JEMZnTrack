@@ -811,7 +811,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[ ]:
+# In[130]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -867,7 +867,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[51]:
+# In[131]:
 
 
 # compute class for the evaluation stage
@@ -981,7 +981,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[120]:
+# In[132]:
 
 
 #stage EvaluateX
@@ -1007,6 +1007,7 @@ class EvaluateX:
             
     def __call__(self, operation):
         self.calibration = operation
+        self.result = "EvaluateX"
     
     def run(self):
         for arg in self.args:
@@ -1018,7 +1019,7 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[121]:
+# In[133]:
 
 
 #declare all the args for evaluation stage
