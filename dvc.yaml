@@ -18,6 +18,7 @@ stages:
     params:
     - XEntropyAugmented
     metrics:
+    - nodes/XEntropyAugmented/metadata.json
     - nodes/XEntropyAugmented/metrics_no_cache.json:
         cache: false
     outs:
@@ -41,6 +42,7 @@ stages:
     params:
     - MaxEntropyL1
     metrics:
+    - nodes/MaxEntropyL1/metadata.json
     - nodes/MaxEntropyL1/metrics_no_cache.json:
         cache: false
     outs:
@@ -64,6 +66,7 @@ stages:
     params:
     - MaxEntropyL2
     metrics:
+    - nodes/MaxEntropyL2/metadata.json
     - nodes/MaxEntropyL2/metrics_no_cache.json:
         cache: false
     outs:
@@ -114,3 +117,5 @@ stages:
     - src/EvaluateX.py
     params:
     - EvaluateX
+    metrics:
+    - nodes/EvaluateX/metadata.json

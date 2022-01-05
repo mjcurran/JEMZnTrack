@@ -15,6 +15,7 @@ from pathlib import Path
 from zntrack import ZnTrackProject, Node, config, dvc, zn
 from tqdm import tqdm
 import pandas as pd
+from zntrack.metadata import TimeIt
 
 
 @Node()
@@ -93,6 +94,7 @@ class train_args():
 # In[3]:
 
 
+#this is a base for the Node compute functions, to split off the actual work from the dvc control flow
 class Base:
     def compute(self, inp):
         raise NotImplementedError
@@ -139,7 +141,6 @@ class FTrain(nn.Module):
 
 class JEMUtils:
     
-    #global get_data
     
     # various utilities
     @staticmethod
@@ -197,9 +198,6 @@ class JEMUtils:
     def get_data(args):
         im_sz = 32
         
-        #def lambdaForTransform(x):
-        #    return x + args.sigma * t.randn_like(x)
-        
         #global transform_train
         transform_train = tr.Compose(
             [tr.Pad(4, padding_mode="reflect"),
@@ -207,16 +205,12 @@ class JEMUtils:
              tr.RandomHorizontalFlip(),
              tr.ToTensor(),
              tr.Normalize((.5, .5, .5), (.5, .5, .5)),
-             #tr.Lambda(lambdaForTransform)
-            #]
              lambda x: x + args.sigma * t.randn_like(x)]
         )
         #global transform_test
         transform_test = tr.Compose(
             [tr.ToTensor(),
              tr.Normalize((.5, .5, .5), (.5, .5, .5)),
-             #tr.Lambda(lambdaForTransform)
-            #]
              lambda x: x + args.sigma * t.randn_like(x)]
         )
         
@@ -258,6 +252,7 @@ class JEMUtils:
         dset_valid = DataSubset(
             dataset_fn(train=True, transform=transform_test),
             inds=valid_inds)
+        # num_workers must be 0 to disable multi-processing or pickle won't be able to serialize this
         dload_train = DataLoader(dset_train, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
         dload_train_labeled = DataLoader(dset_train_labeled, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
         dload_train_labeled = JEMUtils.cycle(dload_train_labeled)
@@ -404,7 +399,7 @@ class Trainer(Base):
         return scores
 
 
-# In[8]:
+# In[24]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -424,6 +419,7 @@ class XEntropyAugmented:
         self.trainer = operation
         self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
     
+    @TimeIt
     def run(self):
         #self.result = self.args.result
         self.result = self.trainer.compute(self.args)
@@ -432,7 +428,7 @@ class XEntropyAugmented:
         
 
 
-# In[9]:
+# In[25]:
 
 
 # add/change parameters for this stage
@@ -447,6 +443,7 @@ class MaxEntropyL1:
         self.trainer = operation
         self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
     
+    @TimeIt
     def run(self):
         #self.result = self.args.result
         self.result = self.trainer.compute(self.args)
@@ -604,7 +601,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[12]:
+# In[27]:
 
 
 @Node()
@@ -618,6 +615,7 @@ class MaxEntropyL2:
         self.trainer = operation
         self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
     
+    @TimeIt
     def run(self):
         #self.result = self.args.result
         self.result = self.trainer.compute(self.args)
@@ -777,7 +775,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[141]:
+# In[29]:
 
 
 class F(nn.Module):
@@ -796,7 +794,7 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[49]:
+# In[17]:
 
 
 class CCF(F):
@@ -811,7 +809,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[142]:
+# In[30]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -867,7 +865,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[131]:
+# In[19]:
 
 
 # compute class for the evaluation stage
@@ -981,7 +979,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[143]:
+# In[31]:
 
 
 #stage EvaluateX
@@ -1009,18 +1007,21 @@ class EvaluateX:
         self.calibration = operation
         #self.result = "EvaluateX"
     
+    @TimeIt
     def run(self):
         for arg in self.args:
             #self.result = arg.name
-            #self.result += self.calibration.compute(arg)
-            self.calibration.compute(arg)
+            #self.result = self.calibration.compute(arg)
+            self.result[arg.experiment] = {}
+            self.result[arg.experiment] = self.calibration.compute(arg)
+            
             
         #result0 = arg0.experiment
         
         #result0 += self.calibration.compute(arg0)
 
 
-# In[144]:
+# In[32]:
 
 
 #declare all the args for evaluation stage
