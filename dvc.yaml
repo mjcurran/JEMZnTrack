@@ -114,5 +114,3 @@ stages:
     - src/EvaluateX.py
     params:
     - EvaluateX
-    outs:
-    - EvaluateX

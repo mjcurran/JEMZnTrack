@@ -90,7 +90,7 @@ class train_args():
     
 
 
-# In[33]:
+# In[3]:
 
 
 class Base:
@@ -98,7 +98,7 @@ class Base:
         raise NotImplementedError
 
 
-# In[34]:
+# In[4]:
 
 
 # get random subset of data
@@ -117,7 +117,7 @@ class DataSubset(Dataset):
         return len(self.inds)
 
 
-# In[35]:
+# In[5]:
 
 
 # setup Wide_ResNet
@@ -134,7 +134,7 @@ class FTrain(nn.Module):
         return self.class_output(penult_z).squeeze()
 
 
-# In[36]:
+# In[6]:
 
 
 class JEMUtils:
@@ -268,7 +268,7 @@ class JEMUtils:
     
 
 
-# In[37]:
+# In[7]:
 
 
 # basic training from train.ipynb
@@ -404,7 +404,7 @@ class Trainer(Base):
         return scores
 
 
-# In[124]:
+# In[8]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -432,7 +432,7 @@ class XEntropyAugmented:
         
 
 
-# In[125]:
+# In[9]:
 
 
 # add/change parameters for this stage
@@ -453,7 +453,7 @@ class MaxEntropyL1:
         
 
 
-# In[42]:
+# In[11]:
 
 
 #trainer class for MaxEntropyL1 stage's compute function
@@ -604,7 +604,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[127]:
+# In[12]:
 
 
 @Node()
@@ -624,7 +624,7 @@ class MaxEntropyL2:
         
 
 
-# In[46]:
+# In[14]:
 
 
 #compute class for the above stage
@@ -777,7 +777,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[129]:
+# In[141]:
 
 
 class F(nn.Module):
@@ -811,7 +811,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[130]:
+# In[142]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -981,7 +981,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[132]:
+# In[143]:
 
 
 #stage EvaluateX
@@ -1007,19 +1007,20 @@ class EvaluateX:
             
     def __call__(self, operation):
         self.calibration = operation
-        self.result = "EvaluateX"
+        #self.result = "EvaluateX"
     
     def run(self):
         for arg in self.args:
             #self.result = arg.name
-            self.result += self.calibration.compute(arg)
+            #self.result += self.calibration.compute(arg)
+            self.calibration.compute(arg)
             
         #result0 = arg0.experiment
         
         #result0 += self.calibration.compute(arg0)
 
 
-# In[133]:
+# In[144]:
 
 
 #declare all the args for evaluation stage
