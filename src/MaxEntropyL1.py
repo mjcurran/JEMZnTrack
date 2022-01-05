@@ -91,7 +91,7 @@ class train_args():
     
 
 
-# In[36]:
+# In[3]:
 
 
 #this is a base for the Node compute functions, to split off the actual work from the dvc control flow
@@ -399,7 +399,7 @@ class Trainer(Base):
         return scores
 
 
-# In[37]:
+# In[8]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -428,7 +428,7 @@ class XEntropyAugmented:
         
 
 
-# In[38]:
+# In[9]:
 
 
 # add/change parameters for this stage
@@ -601,7 +601,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[40]:
+# In[ ]:
 
 
 @Node()
@@ -775,7 +775,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[42]:
+# In[53]:
 
 
 class F(nn.Module):
@@ -809,7 +809,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[43]:
+# In[54]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -979,7 +979,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[44]:
+# In[55]:
 
 
 #stage EvaluateX
@@ -1000,6 +1000,8 @@ class EvaluateX:
     #result0 = dvc.outs()
     result = dvc.outs()
     
+    # add plots to dvc tracking
+    # this would be better if the paths could be defined by the passed args, but can't see how to 
     plot0: Path = dvc.plots("./experiment/x-entropy_augmented_calibration.csv")
     plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
     plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
@@ -1015,17 +1017,11 @@ class EvaluateX:
     def run(self):
         for arg in self.args:
             #self.result = arg.name
-            #self.result = self.calibration.compute(arg)
-            self.result[arg.experiment] = {}
-            self.result[arg.experiment] = self.calibration.compute(arg)
+            self.calibration.compute(arg)
             
-            
-        #result0 = arg0.experiment
-        
-        #result0 += self.calibration.compute(arg0)
 
 
-# In[45]:
+# In[56]:
 
 
 #declare all the args for evaluation stage
