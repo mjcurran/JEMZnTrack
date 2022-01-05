@@ -399,7 +399,7 @@ class Trainer(Base):
         return scores
 
 
-# In[24]:
+# In[37]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -428,7 +428,7 @@ class XEntropyAugmented:
         
 
 
-# In[25]:
+# In[38]:
 
 
 # add/change parameters for this stage
@@ -601,7 +601,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[27]:
+# In[40]:
 
 
 @Node()
@@ -775,7 +775,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[29]:
+# In[42]:
 
 
 class F(nn.Module):
@@ -809,7 +809,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[30]:
+# In[43]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -979,7 +979,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[31]:
+# In[44]:
 
 
 #stage EvaluateX
@@ -999,6 +999,10 @@ class EvaluateX:
     calibration: Base = zn.Method()
     #result0 = dvc.outs()
     result = dvc.outs()
+    
+    plot0: Path = dvc.plots("./experiment/x-entropy_augmented_calibration.csv")
+    plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
+    plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
     
     #def __init__(self):
     #    self.result = {}
@@ -1021,7 +1025,7 @@ class EvaluateX:
         #result0 += self.calibration.compute(arg0)
 
 
-# In[32]:
+# In[45]:
 
 
 #declare all the args for evaluation stage

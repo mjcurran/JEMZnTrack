@@ -104,6 +104,11 @@
         },
         "outs": {
             "result": null
+        },
+        "plots": {
+            "plot0": "./experiment/x-entropy_augmented_calibration.csv",
+            "plot1": "./experiment/max-entropy-L1_augmented_calibration.csv",
+            "plot2": "./experiment/max-entropy-L2_augmented_calibration.csv"
         }
     }
 }

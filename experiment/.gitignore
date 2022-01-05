@@ -1,3 +1,6 @@
 /max-entropy-L2_augmented
 /max-entropy-L1_augmented
 /x-entropy_augmented
+/x-entropy_augmented_calibration.csv
+/max-entropy-L1_augmented_calibration.csv
+/max-entropy-L2_augmented_calibration.csv
