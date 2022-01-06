@@ -305,7 +305,7 @@ class Trainer(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path:
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
             ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
@@ -413,7 +413,7 @@ class XEntropyAugmented:
     args: train_args = dvc.deps(train_args(load=True))
     trainer: Base = zn.Method()
     result = zn.metrics()
-    model: Path = dvc.outs()
+    model: Path = dvc.outs()  # is making the model file an outs causing it to delete the file?
     
             
     def __call__(self, operation):
@@ -493,7 +493,7 @@ class TrainerL1(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path:
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
             ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
@@ -624,7 +624,7 @@ class MaxEntropyL2:
         
 
 
-# In[14]:
+# In[17]:
 
 
 #compute class for the above stage
@@ -666,7 +666,7 @@ class TrainerL2(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path:
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
             ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
@@ -778,7 +778,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[15]:
+# In[18]:
 
 
 class F(nn.Module):
@@ -797,7 +797,7 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[17]:
+# In[20]:
 
 
 class CCF(F):
@@ -812,7 +812,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[18]:
+# In[21]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -868,7 +868,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[19]:
+# In[22]:
 
 
 # compute class for the evaluation stage
@@ -982,7 +982,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[20]:
+# In[23]:
 
 
 #stage EvaluateX
@@ -1024,7 +1024,7 @@ class EvaluateX:
             
 
 
-# In[21]:
+# In[24]:
 
 
 #declare all the args for evaluation stage
