@@ -307,7 +307,8 @@ class Trainer(Base):
         # load checkpoint?
         if args.load_path:
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
-            ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -399,7 +400,7 @@ class Trainer(Base):
         return scores
 
 
-# In[8]:
+# In[11]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -428,7 +429,7 @@ class XEntropyAugmented:
         
 
 
-# In[9]:
+# In[12]:
 
 
 # add/change parameters for this stage
@@ -450,7 +451,7 @@ class MaxEntropyL1:
         
 
 
-# In[11]:
+# In[14]:
 
 
 #trainer class for MaxEntropyL1 stage's compute function
@@ -494,7 +495,8 @@ class TrainerL1(Base):
         # load checkpoint?
         if args.load_path:
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
-            ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -601,7 +603,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[ ]:
+# In[15]:
 
 
 @Node()
@@ -666,7 +668,8 @@ class TrainerL2(Base):
         # load checkpoint?
         if args.load_path:
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
-            ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -775,7 +778,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[53]:
+# In[15]:
 
 
 class F(nn.Module):
@@ -809,7 +812,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[54]:
+# In[18]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -979,7 +982,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[55]:
+# In[20]:
 
 
 #stage EvaluateX
@@ -1021,7 +1024,7 @@ class EvaluateX:
             
 
 
-# In[56]:
+# In[21]:
 
 
 #declare all the args for evaluation stage

@@ -26,7 +26,7 @@ max-entropy-L1_augmented:
   experiment: max-entropy-L1_augmented
   load_path: ./experiment
   n_steps: 20
-  norm:
+  norm: null
   print_to_log: false
   save_dir: ./experiment
   seed: 123456
@@ -40,7 +40,7 @@ max-entropy-L2_augmented:
   experiment: max-entropy-L2_augmented
   load_path: ./experiment
   n_steps: 20
-  norm:
+  norm: null
   print_to_log: false
   save_dir: ./experiment
   seed: 123456
@@ -69,13 +69,13 @@ train_args:
   eval_every: 1
   experiment: x-entropy_augmented
   labels_per_class: -1
-  load_path:
+  load_path: ./experiment
   lr: 0.0001
   n_classes: 10
   n_epochs: 10
   n_steps: 20
   n_valid: 5000
-  norm:
+  norm: null
   print_every: 100
   print_to_log: false
   save_dir: ./experiment
@@ -94,13 +94,13 @@ train_argsL1:
   eval_every: 1
   experiment: max-entropy-L1_augmented
   labels_per_class: -1
-  load_path:
+  load_path: ./experiment
   lr: 0.0001
   n_classes: 10
   n_epochs: 10
   n_steps: 20
   n_valid: 5000
-  norm:
+  norm: null
   print_every: 100
   print_to_log: false
   save_dir: ./experiment
@@ -119,13 +119,13 @@ train_argsL2:
   eval_every: 1
   experiment: max-entropy-L2_augmented
   labels_per_class: -1
-  load_path:
+  load_path: ./experiment
   lr: 0.0001
   n_classes: 10
   n_epochs: 10
   n_steps: 20
   n_valid: 5000
-  norm:
+  norm: null
   print_every: 100
   print_to_log: false
   save_dir: ./experiment
@@ -140,7 +140,7 @@ x-entropy_augmented:
   experiment: x-entropy_augmented
   load_path: ./experiment
   n_steps: 20
-  norm:
+  norm: null
   print_to_log: false
   save_dir: ./experiment
   seed: 123456
