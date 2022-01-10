@@ -1,0 +1,24 @@
+Thu Jan  6 17:30:49 EST 2022
+Path                                           Metric                  HEAD        workspace    Change
+nodes/XEntropyAugmented/metadata.json          metadata.run:timeit     2596.61084  2717.1976    120.58676
+nodes/EvaluateX/metadata.json                  metadata.run:timeit     212.92437   194.13721    -18.78716
+nodes/MaxEntropyL1/metrics_no_cache.json       result.test.acc:        0.695       0.7098       0.0148
+nodes/MaxEntropyL1/metrics_no_cache.json       result.test.loss        1.27223     1.24157      -0.03066
+nodes/MaxEntropyL1/metrics_no_cache.json       result.train.acc:       0.68697     0.71086      0.02389
+nodes/MaxEntropyL1/metrics_no_cache.json       result.train.loss       1.28807     1.25491      -0.03316
+nodes/MaxEntropyL1/metrics_no_cache.json       result.validation.acc:  0.6952      0.714        0.0188
+nodes/MaxEntropyL1/metrics_no_cache.json       result.validation.loss  1.26773     1.23672      -0.03101
+nodes/MaxEntropyL2/metrics_no_cache.json       result.test.acc:        0.8429      0.8366       -0.0063
+nodes/MaxEntropyL2/metrics_no_cache.json       result.test.loss        0.48835     0.49568      0.00733
+nodes/MaxEntropyL2/metrics_no_cache.json       result.train.acc:       0.85589     0.84982      -0.00607
+nodes/MaxEntropyL2/metrics_no_cache.json       result.train.loss       0.46249     0.46504      0.00255
+nodes/MaxEntropyL2/metrics_no_cache.json       result.validation.acc:  0.842       0.8366       -0.0054
+nodes/MaxEntropyL2/metrics_no_cache.json       result.validation.loss  0.47606     0.48157      0.00551
+nodes/XEntropyAugmented/metrics_no_cache.json  result.test.acc:        0.8579      0.8515       -0.0064
+nodes/XEntropyAugmented/metrics_no_cache.json  result.test.loss        0.41581     0.43305      0.01724
+nodes/XEntropyAugmented/metrics_no_cache.json  result.train.acc:       0.88267     0.87564      -0.00702
+nodes/XEntropyAugmented/metrics_no_cache.json  result.train.loss       0.34302     0.35607      0.01305
+nodes/XEntropyAugmented/metrics_no_cache.json  result.validation.acc:  0.8666      0.8608       -0.0058
+nodes/XEntropyAugmented/metrics_no_cache.json  result.validation.loss  0.40131     0.4167       0.01539
+nodes/MaxEntropyL1/metadata.json               metadata.run:timeit     2595.23753  2699.74423   104.50669
+nodes/MaxEntropyL2/metadata.json               metadata.run:timeit     2602.3707   2712.73542   110.36472
