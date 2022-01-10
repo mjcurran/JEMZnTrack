@@ -91,7 +91,7 @@ class train_args():
     
 
 
-# In[97]:
+# In[119]:
 
 
 #this is a base for the Node compute functions, to split off the actual work from the dvc control flow
@@ -100,7 +100,7 @@ class Base:
         raise NotImplementedError
 
 
-# In[98]:
+# In[120]:
 
 
 # get random subset of data
@@ -119,7 +119,7 @@ class DataSubset(Dataset):
         return len(self.inds)
 
 
-# In[99]:
+# In[121]:
 
 
 # setup Wide_ResNet
@@ -136,7 +136,7 @@ class FTrain(nn.Module):
         return self.class_output(penult_z).squeeze()
 
 
-# In[100]:
+# In[122]:
 
 
 class JEMUtils:
@@ -200,6 +200,9 @@ class JEMUtils:
         
         
         #global transform_train
+        # the GaussianBlur is roughly equivalent to the lambda functions here
+        # but the lambda functions aren't serializable for multi-processing
+        # torchvision.transforms documentation state to not use lambda functions as well
         transform_train = tr.Compose(
             [tr.Pad(4, padding_mode="reflect"),
              tr.RandomCrop(im_sz),
@@ -255,7 +258,7 @@ class JEMUtils:
         dset_valid = DataSubset(
             dataset_fn(train=True, transform=transform_test),
             inds=valid_inds)
-        # num_workers must be 0 to disable multi-processing or pickle won't be able to serialize this
+        
         dload_train = DataLoader(dset_train, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
         dload_train_labeled = DataLoader(dset_train_labeled, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
         dload_train_labeled = JEMUtils.cycle(dload_train_labeled)
@@ -266,7 +269,7 @@ class JEMUtils:
     
 
 
-# In[101]:
+# In[123]:
 
 
 # basic training from train.ipynb
@@ -403,7 +406,7 @@ class Trainer(Base):
         return scores
 
 
-# In[102]:
+# In[124]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -432,7 +435,7 @@ class XEntropyAugmented:
         
 
 
-# In[103]:
+# In[125]:
 
 
 # add/change parameters for this stage
@@ -454,7 +457,7 @@ class MaxEntropyL1:
         
 
 
-# In[105]:
+# In[127]:
 
 
 #trainer class for MaxEntropyL1 stage's compute function
@@ -606,7 +609,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[106]:
+# In[128]:
 
 
 @Node()
@@ -627,7 +630,7 @@ class MaxEntropyL2:
         
 
 
-# In[108]:
+# In[130]:
 
 
 #compute class for the above stage
@@ -781,7 +784,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[109]:
+# In[131]:
 
 
 class F(nn.Module):
@@ -800,7 +803,7 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[111]:
+# In[133]:
 
 
 class CCF(F):
@@ -815,7 +818,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[112]:
+# In[134]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -871,7 +874,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[113]:
+# In[135]:
 
 
 # compute class for the evaluation stage
@@ -985,7 +988,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[114]:
+# In[136]:
 
 
 #stage EvaluateX
@@ -1015,8 +1018,8 @@ class EvaluateX:
     plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
     plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
     
-    def __init__(self):
-        self.result = Path('./experiment/joint_energy_models_scores.json')
+    #def __init__(self):
+    #    self.result = Path('./experiment/joint_energy_models_scores.json')
         
             
     def __call__(self, operation):
@@ -1025,16 +1028,16 @@ class EvaluateX:
     
     @TimeIt
     def run(self):
-        scores = {}
+        #scores = {}
         for arg in self.args:
-            scores += self.calibration.compute(arg)
-            with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
-                json.dump(scores, outfile)
+            self.calibration.compute(arg)
+            #with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
+            #    json.dump(scores, outfile)
             
             
 
 
-# In[115]:
+# In[137]:
 
 
 #declare all the args for evaluation stage

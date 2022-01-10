@@ -200,6 +200,9 @@ class JEMUtils:
         
         
         #global transform_train
+        # the GaussianBlur is roughly equivalent to the lambda functions here
+        # but the lambda functions aren't serializable for multi-processing
+        # torchvision.transforms documentation state to not use lambda functions as well
         transform_train = tr.Compose(
             [tr.Pad(4, padding_mode="reflect"),
              tr.RandomCrop(im_sz),
@@ -255,7 +258,7 @@ class JEMUtils:
         dset_valid = DataSubset(
             dataset_fn(train=True, transform=transform_test),
             inds=valid_inds)
-        # num_workers must be 0 to disable multi-processing or pickle won't be able to serialize this
+        
         dload_train = DataLoader(dset_train, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
         dload_train_labeled = DataLoader(dset_train_labeled, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
         dload_train_labeled = JEMUtils.cycle(dload_train_labeled)
@@ -985,7 +988,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[114]:
+# In[136]:
 
 
 #stage EvaluateX
@@ -1015,8 +1018,8 @@ class EvaluateX:
     plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
     plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
     
-    def __init__(self):
-        self.result = Path('./experiment/joint_energy_models_scores.json')
+    #def __init__(self):
+    #    self.result = Path('./experiment/joint_energy_models_scores.json')
         
             
     def __call__(self, operation):
@@ -1025,16 +1028,16 @@ class EvaluateX:
     
     @TimeIt
     def run(self):
-        scores = {}
+        #scores = {}
         for arg in self.args:
-            scores += self.calibration.compute(arg)
-            with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
-                json.dump(scores, outfile)
+            self.calibration.compute(arg)
+            #with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
+            #    json.dump(scores, outfile)
             
             
 
 
-# In[115]:
+# In[137]:
 
 
 #declare all the args for evaluation stage
