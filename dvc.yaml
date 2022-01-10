@@ -123,3 +123,5 @@ stages:
     - experiment/max-entropy-L1_augmented_calibration.csv
     - experiment/max-entropy-L2_augmented_calibration.csv
     - experiment/x-entropy_augmented_calibration.csv
+    outs:
+    - experiment/joint_energy_models_scores.json

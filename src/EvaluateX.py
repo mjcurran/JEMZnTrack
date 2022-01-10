@@ -91,7 +91,7 @@ class train_args():
     
 
 
-# In[3]:
+# In[119]:
 
 
 #this is a base for the Node compute functions, to split off the actual work from the dvc control flow
@@ -100,7 +100,7 @@ class Base:
         raise NotImplementedError
 
 
-# In[4]:
+# In[120]:
 
 
 # get random subset of data
@@ -119,7 +119,7 @@ class DataSubset(Dataset):
         return len(self.inds)
 
 
-# In[5]:
+# In[121]:
 
 
 # setup Wide_ResNet
@@ -136,7 +136,7 @@ class FTrain(nn.Module):
         return self.class_output(penult_z).squeeze()
 
 
-# In[6]:
+# In[122]:
 
 
 class JEMUtils:
@@ -198,6 +198,7 @@ class JEMUtils:
     def get_data(args):
         im_sz = 32
         
+        
         #global transform_train
         transform_train = tr.Compose(
             [tr.Pad(4, padding_mode="reflect"),
@@ -205,13 +206,15 @@ class JEMUtils:
              tr.RandomHorizontalFlip(),
              tr.ToTensor(),
              tr.Normalize((.5, .5, .5), (.5, .5, .5)),
-             lambda x: x + args.sigma * t.randn_like(x)]
+             tr.GaussianBlur(kernel_size=(5, 5), sigma=(args.sigma, args.sigma * 2))]
+             #lambda x: x + args.sigma * t.randn_like(x)]
         )
         #global transform_test
         transform_test = tr.Compose(
             [tr.ToTensor(),
              tr.Normalize((.5, .5, .5), (.5, .5, .5)),
-             lambda x: x + args.sigma * t.randn_like(x)]
+             tr.GaussianBlur(kernel_size=(5, 5), sigma=(args.sigma, args.sigma * 2))]
+             #lambda x: x + args.sigma * t.randn_like(x)]
         )
         
         
@@ -253,17 +256,17 @@ class JEMUtils:
             dataset_fn(train=True, transform=transform_test),
             inds=valid_inds)
         # num_workers must be 0 to disable multi-processing or pickle won't be able to serialize this
-        dload_train = DataLoader(dset_train, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
-        dload_train_labeled = DataLoader(dset_train_labeled, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
+        dload_train = DataLoader(dset_train, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        dload_train_labeled = DataLoader(dset_train_labeled, batch_size=args.batch_size, shuffle=True, num_workers=4, drop_last=True)
         dload_train_labeled = JEMUtils.cycle(dload_train_labeled)
         dset_test = dataset_fn(train=False, transform=transform_test)
-        dload_valid = DataLoader(dset_valid, batch_size=100, shuffle=False, num_workers=0, drop_last=False)
-        dload_test = DataLoader(dset_test, batch_size=100, shuffle=False, num_workers=0, drop_last=False)
+        dload_valid = DataLoader(dset_valid, batch_size=100, shuffle=False, num_workers=4, drop_last=False)
+        dload_test = DataLoader(dset_test, batch_size=100, shuffle=False, num_workers=4, drop_last=False)
         return dload_train, dload_train_labeled, dload_valid, dload_test
     
 
 
-# In[27]:
+# In[123]:
 
 
 # basic training from train.ipynb
@@ -305,10 +308,10 @@ class Trainer(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -400,7 +403,7 @@ class Trainer(Base):
         return scores
 
 
-# In[28]:
+# In[124]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -429,7 +432,7 @@ class XEntropyAugmented:
         
 
 
-# In[29]:
+# In[125]:
 
 
 # add/change parameters for this stage
@@ -451,7 +454,7 @@ class MaxEntropyL1:
         
 
 
-# In[14]:
+# In[127]:
 
 
 #trainer class for MaxEntropyL1 stage's compute function
@@ -493,10 +496,10 @@ class TrainerL1(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -603,7 +606,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[15]:
+# In[128]:
 
 
 @Node()
@@ -624,7 +627,7 @@ class MaxEntropyL2:
         
 
 
-# In[17]:
+# In[130]:
 
 
 #compute class for the above stage
@@ -666,10 +669,10 @@ class TrainerL2(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -778,7 +781,7 @@ class TrainerL2(Base):
         return scores
 
 
-# In[18]:
+# In[131]:
 
 
 class F(nn.Module):
@@ -797,7 +800,7 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[20]:
+# In[133]:
 
 
 class CCF(F):
@@ -812,7 +815,7 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[21]:
+# In[134]:
 
 
 #class to hold the parameters for the evaluate calibration stage
@@ -868,7 +871,7 @@ class eval_args():
         self.result = {"experiment": self.experiment}
 
 
-# In[22]:
+# In[135]:
 
 
 # compute class for the evaluation stage
@@ -982,7 +985,7 @@ class Calibration(Base):
         return resultfile
 
 
-# In[23]:
+# In[114]:
 
 
 #stage EvaluateX
@@ -992,6 +995,9 @@ class Calibration(Base):
 @Node()
 class EvaluateX:
     
+    #from the DVC docs:  "Stage dependencies can be any file or directory"
+    # so the eval_args stages have to output something in order to be used as deps here
+    # so we use the metrics files like:  nodes/x-entropy_augmented/metrics_no_cache.json
     args = dvc.deps([eval_args(load=True, name="x-entropy_augmented"), 
                      eval_args(load=True, name="max-entropy-L1_augmented"), 
                      eval_args(load=True, name="max-entropy-L2_augmented")])
@@ -1000,8 +1006,8 @@ class EvaluateX:
     models = dvc.deps([XEntropyAugmented(load=True), MaxEntropyL1(load=True), MaxEntropyL2(load=True)])
     
     calibration: Base = zn.Method()
-    #result0 = dvc.outs()
-    result = dvc.outs()
+   
+    result: Path = dvc.outs()
     
     # add plots to dvc tracking
     # this would be better if the paths could be defined by the passed args, but can't see how to 
@@ -1009,22 +1015,26 @@ class EvaluateX:
     plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
     plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
     
-    #def __init__(self):
-    #    self.result = {}
+    def __init__(self):
+        self.result = Path('./experiment/joint_energy_models_scores.json')
+        
             
     def __call__(self, operation):
         self.calibration = operation
-        #self.result = "EvaluateX"
+        
     
     @TimeIt
     def run(self):
+        scores = {}
         for arg in self.args:
-            #self.result = arg.name
-            self.calibration.compute(arg)
+            scores += self.calibration.compute(arg)
+            with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
+                json.dump(scores, outfile)
+            
             
 
 
-# In[24]:
+# In[115]:
 
 
 #declare all the args for evaluation stage
