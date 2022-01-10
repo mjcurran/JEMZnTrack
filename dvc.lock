@@ -5,8 +5,8 @@ stages:
       \ "
     deps:
     - path: src/eval_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 5fbb382f92f4010556dc30a1938dfb29
+      size: 37158
     params:
       params.yaml:
         max-entropy-L2_augmented:
@@ -32,8 +32,8 @@ stages:
       \ "
     deps:
     - path: src/eval_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 5fbb382f92f4010556dc30a1938dfb29
+      size: 37158
     params:
       params.yaml:
         x-entropy_augmented:
@@ -59,8 +59,8 @@ stages:
       \ name='train_argsL1').run()\" "
     deps:
     - path: src/train_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 7e82d950abe90277f60e6313b15b5461
+      size: 37157
     params:
       params.yaml:
         train_argsL1:
@@ -74,7 +74,7 @@ stages:
           eval_every: 1
           experiment: max-entropy-L1_augmented
           labels_per_class: -1
-          load_path:
+          load_path: ./experiment
           lr: 0.0001
           n_classes: 10
           n_epochs: 10
@@ -97,8 +97,8 @@ stages:
       \ name='train_args').run()\" "
     deps:
     - path: src/train_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 7e82d950abe90277f60e6313b15b5461
+      size: 37157
     params:
       params.yaml:
         train_args:
@@ -112,7 +112,7 @@ stages:
           eval_every: 1
           experiment: x-entropy_augmented
           labels_per_class: -1
-          load_path:
+          load_path: ./experiment
           lr: 0.0001
           n_classes: 10
           n_epochs: 10
@@ -138,8 +138,8 @@ stages:
       md5: 1a08b130e0742c66dd6e6df726d042eb
       size: 39
     - path: src/XEntropyAugmented.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 7e82d950abe90277f60e6313b15b5461
+      size: 37157
     params:
       params.yaml:
         XEntropyAugmented:
@@ -149,14 +149,14 @@ stages:
             name: Trainer
     outs:
     - path: experiment/x-entropy_augmented/last_ckpt.pt
-      md5: e217a827e89d551cf847674766392e90
+      md5: 6f50b45b887d5b712889df5ed9a1ba91
       size: 437741469
     - path: nodes/XEntropyAugmented/metadata.json
-      md5: aafbb52e730250f83e5941848af7f7e9
-      size: 68
+      md5: 0d8ba848fd27930e3c502952add9bc46
+      size: 67
     - path: nodes/XEntropyAugmented/metrics_no_cache.json
-      md5: fa12637bb5ffde775a5157fde0be6fcb
-      size: 355
+      md5: 0b49b902a0cbf1a1f1ce0e8519df06a1
+      size: 353
   MaxEntropyL1:
     cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1(load=True,\
       \ name='MaxEntropyL1').run()\" "
@@ -165,8 +165,8 @@ stages:
       md5: 70004155013383c24920c0d23ae05f8c
       size: 44
     - path: src/MaxEntropyL1.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 7e82d950abe90277f60e6313b15b5461
+      size: 37157
     params:
       params.yaml:
         MaxEntropyL1:
@@ -176,21 +176,21 @@ stages:
             name: TrainerL1
     outs:
     - path: experiment/max-entropy-L1_augmented/last_ckpt.pt
-      md5: aff0a22d0ee54b799858fc16863aa3a0
+      md5: 9c9dfd92e8a03e4c6e7e39ee3378738b
       size: 437741469
     - path: nodes/MaxEntropyL1/metadata.json
-      md5: debea35e69a36ee29ade2826f2070f97
-      size: 68
+      md5: 060180fe778113549482ef806daf4375
+      size: 67
     - path: nodes/MaxEntropyL1/metrics_no_cache.json
-      md5: 28a29d33f7eb91cbf502e0204d38b2de
-      size: 354
+      md5: 4661fceb629f58b475d28f651c63464f
+      size: 355
   train_argsL2:
     cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
       \ name='train_argsL2').run()\" "
     deps:
     - path: src/train_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 7e82d950abe90277f60e6313b15b5461
+      size: 37157
     params:
       params.yaml:
         train_argsL2:
@@ -204,7 +204,7 @@ stages:
           eval_every: 1
           experiment: max-entropy-L2_augmented
           labels_per_class: -1
-          load_path:
+          load_path: ./experiment
           lr: 0.0001
           n_classes: 10
           n_epochs: 10
@@ -230,8 +230,8 @@ stages:
       md5: d1fac001bba548cc15d2b4453c8a92ff
       size: 44
     - path: src/MaxEntropyL2.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 5fbb382f92f4010556dc30a1938dfb29
+      size: 37158
     params:
       params.yaml:
         MaxEntropyL2:
@@ -241,21 +241,21 @@ stages:
             name: TrainerL2
     outs:
     - path: experiment/max-entropy-L2_augmented/last_ckpt.pt
-      md5: 208b7eef861c22863f1cd7d52afc1106
+      md5: a6fb7b7a64087395cf1f6e413a94a2e4
       size: 437741469
     - path: nodes/MaxEntropyL2/metadata.json
-      md5: a960c11641b0d17ed3c376a3b8aec0e4
+      md5: ee37a8008b5ba0a8cf511bb677ac4cdb
       size: 68
     - path: nodes/MaxEntropyL2/metrics_no_cache.json
-      md5: d3fd53b222b617ca4e0f7b12e278dd0e
-      size: 356
+      md5: 0c012fa663f4bf20b4ec7ce208f3a8ba
+      size: 355
   max-entropy-L1_augmented:
     cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='max-entropy-L1_augmented').run()\"\
       \ "
     deps:
     - path: src/eval_args.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 5fbb382f92f4010556dc30a1938dfb29
+      size: 37158
     params:
       params.yaml:
         max-entropy-L1_augmented:
@@ -281,23 +281,23 @@ stages:
       \ "
     deps:
     - path: experiment/max-entropy-L1_augmented/last_ckpt.pt
-      md5: aff0a22d0ee54b799858fc16863aa3a0
+      md5: 9c9dfd92e8a03e4c6e7e39ee3378738b
       size: 437741469
     - path: experiment/max-entropy-L2_augmented/last_ckpt.pt
-      md5: 208b7eef861c22863f1cd7d52afc1106
+      md5: a6fb7b7a64087395cf1f6e413a94a2e4
       size: 437741469
     - path: experiment/x-entropy_augmented/last_ckpt.pt
-      md5: e217a827e89d551cf847674766392e90
+      md5: 6f50b45b887d5b712889df5ed9a1ba91
       size: 437741469
     - path: nodes/MaxEntropyL1/metrics_no_cache.json
-      md5: 28a29d33f7eb91cbf502e0204d38b2de
-      size: 354
-    - path: nodes/MaxEntropyL2/metrics_no_cache.json
-      md5: d3fd53b222b617ca4e0f7b12e278dd0e
-      size: 356
-    - path: nodes/XEntropyAugmented/metrics_no_cache.json
-      md5: fa12637bb5ffde775a5157fde0be6fcb
+      md5: 4661fceb629f58b475d28f651c63464f
       size: 355
+    - path: nodes/MaxEntropyL2/metrics_no_cache.json
+      md5: 0c012fa663f4bf20b4ec7ce208f3a8ba
+      size: 355
+    - path: nodes/XEntropyAugmented/metrics_no_cache.json
+      md5: 0b49b902a0cbf1a1f1ce0e8519df06a1
+      size: 353
     - path: nodes/max-entropy-L1_augmented/metrics_no_cache.json
       md5: ae7f5f90408f4881dcadda5982c84c5b
       size: 74
@@ -308,8 +308,8 @@ stages:
       md5: 203c1ea4130c2cb23faef6429bc28ab8
       size: 69
     - path: src/EvaluateX.py
-      md5: ac1035b551ca5032bbae3d040e4a4aab
-      size: 36472
+      md5: 5fbb382f92f4010556dc30a1938dfb29
+      size: 37158
     params:
       params.yaml:
         EvaluateX:
@@ -319,14 +319,14 @@ stages:
             name: Calibration
     outs:
     - path: experiment/max-entropy-L1_augmented_calibration.csv
-      md5: e363f777531fedf830dac2ca63469770
-      size: 663
+      md5: 643cdb0affc0b147a897e787bf1871c9
+      size: 573
     - path: experiment/max-entropy-L2_augmented_calibration.csv
-      md5: e38a2cac6801c239c5d98726af1018c8
-      size: 804
+      md5: da80f5d99b5b62de1cf94338776e8cb8
+      size: 810
     - path: experiment/x-entropy_augmented_calibration.csv
-      md5: 2f0ddd4679eb111ec2be8e0f188f03f9
-      size: 792
+      md5: 833fc1e8d796d58c72c03a74bc1397c1
+      size: 810
     - path: nodes/EvaluateX/metadata.json
-      md5: 2a6c302ae49575e8b1656b1fad605d0d
+      md5: 7800b07430e3c24fbc64a43dd282d797
       size: 67
