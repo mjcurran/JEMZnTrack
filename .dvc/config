@@ -2,6 +2,7 @@
     remote = drive
     analytics = false
 ['remote "drive"']
-    url = gdrive://1mrV235t8Kbv-kt1728i6iXdyUioyW20e
-['remote "afs"']
-    url = /afs/crc.nd.edu/user/j/jsweet/Public/dvc/joint-energy-models
+    url = gdrive://1ZEctsDnA4t-nlFVDfKNmAsvmIyOI4ono
+    gdrive_client_id = 67310441227-uq529g1t787ufq63ptmm5afvkimv066v.apps.googleusercontent.com
+    gdrive_client_secret = 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
+    gdrive_use_service_account = true
