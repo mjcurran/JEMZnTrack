@@ -329,6 +329,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dvclive"
+version = "0.4.6"
+requires_python = ">=3.6"
+summary = "Metric logger for ML projects."
+
+[[package]]
 name = "entrypoints"
 version = "0.3"
 requires_python = ">=2.7"
@@ -1444,7 +1450,7 @@ dependencies = [
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:2b4d8b1a84507056103ecd74aa2f0cae82fe64c7bdc38136ae34e099a9a81447"
+content_hash = "sha256:28c0158c742014110ac7e997a0613a3419b9dbecd4c422ba026facf6aa4edb09"
 
 [metadata.files]
 "aiohttp 3.8.1" = [
@@ -1770,6 +1776,10 @@ content_hash = "sha256:2b4d8b1a84507056103ecd74aa2f0cae82fe64c7bdc38136ae34e099a
 "dvc 2.9.1" = [
     {file = "dvc-2.9.1-py3-none-any.whl", hash = "sha256:fc5fccb5d6ba2749a560589d90ab4afc8ab64bb1a3f5a28f3272e50aa7aa222e"},
     {file = "dvc-2.9.1.tar.gz", hash = "sha256:777020ed96d411cd0257ea4fdb842307a02a187b6ff8eacb7d97397507b5a007"},
+]
+"dvclive 0.4.6" = [
+    {file = "dvclive-0.4.6-py2.py3-none-any.whl", hash = "sha256:b45dc77fb6b8c8ba920df09368ba31e3831dae97c6b064afc16714e330a20f9e"},
+    {file = "dvclive-0.4.6.tar.gz", hash = "sha256:9132be7368272c49c3bf72d2334732eaef0dd9093c020e51e6f25bb202c403e9"},
 ]
 "entrypoints 0.3" = [
     {file = "entrypoints-0.3-py2.py3-none-any.whl", hash = "sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19"},

@@ -120,6 +120,9 @@ stages:
     metrics:
     - nodes/EvaluateX/metadata.json
     plots:
-    - experiment/max-entropy-L1_augmented_calibration.csv
-    - experiment/max-entropy-L2_augmented_calibration.csv
-    - experiment/x-entropy_augmented_calibration.csv
+    - experiment/max-entropy-L1_augmented_calibration.csv:
+        y: accuracy
+    - experiment/max-entropy-L2_augmented_calibration.csv:
+        y: accuracy
+    - experiment/x-entropy_augmented_calibration.csv:
+        y: accuracy
