@@ -9,21 +9,11 @@ Pipelines are useful in many machine learning experiments, especially if you hav
 Or it can read a pre-defined `yaml <https://dvc.org/doc/user-guide/project-structure/pipelines-files>`_ file if you prefer to write it manually.
 Follow the links to see examples of command line generated :code:`dvc.yaml` files. The following example was generated using :code:`ZnTrack`.
 
-Example stages:
+Example stage:
 
 .. code-block::
 
     stages:
-        train_args:
-            cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
-              \ name='train_args').run()\" "
-            deps:
-            - src/train_args.py
-            params:
-            - train_args
-            metrics:
-            - nodes/train_args/metrics_no_cache.json:
-                cache: false
         XEntropyAugmented:
             cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented(load=True,\
               \ name='XEntropyAugmented').run()\" "
@@ -58,79 +48,98 @@ Example:
 
 .. code-block::
 
-    @Node()
-    class XEntropyAugmented:
-    
-        #remove the load=True from this if running for the first time gives dependency errors
-        # shouldn't be a problem after the whole dvc.yaml is created
-        args: train_args = dvc.deps(train_args(load=True))
-        trainer: Base = zn.Method()
-        
-        metrics: Path = dvc.metrics_no_cache()  # tracked by git already, so has to be no cache
-        model: Path = dvc.outs()  
-        #this needs to be declared as a checkpoint: true in dvc.yaml manually
-        #ZnTrack doesn't support that feature
-    
-            
-        def __call__(self, operation):
-            self.trainer = operation
-            #Make sure this path is available at the time the dvc stage is declared or it will error out
-            if not os.path.exists(os.path.join(args.save_dir, args.experiment)):
-                os.makedirs(os.path.join(args.save_dir, args.experiment))
+    @dataclasses.dataclass
+    class train_args:
+        norm: str = None
+        load_path: str = "./experiment"
+        experiment: str = "energy-models"
+        #any other params needed
 
-            self.metrics = Path(os.path.join(self.args.save_dir, self.args.experiment) + '_scores.json')
-            self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), f'ckpt_{self.args.experiment}.pt'))
+.. code-block::
+
+    class XEntropyAugmented(Node):
     
-        @TimeIt
+        params: train_args = zn.Method()
+        model: Path = dvc.outs()
+        metrics: Path = dvc.metrics_no_cache() 
+    
+        def __init__(self, params: train_args = None, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.params = params
+            if params != None and not os.path.exists(os.path.join(params.save_dir, params.experiment)):
+                os.makedirs(os.path.join(params.save_dir, params.experiment))
+            
+            if not self.is_loaded:
+                self.params = train_args(experiment='x-entropy_augmented')
+        
+            self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
+            self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
+        
+
         def run(self):
-            scores = self.trainer.compute(self.args)
+            scores = self.compute(self.params)
             with open(self.metrics, 'w') as outfile:
                 json.dump(scores, outfile)
+        
+    
+        def compute(self, inp):
+            #do the work
 
 
-Executing this code block in a jupyter-notebook results in the file :code:`src/XEntropyAugmented.py` being generated from all the 
-python classes contained in the notebook.  
+Declaring and calling this class in a jupyter-notebook results in the file :code:`src/XEntropyAugmented.py` being generated from all the 
+python classes contained in the notebook, and the stage being written to :code:`dvc.yaml`.  
 
 **Note:** all code you want to be runnable as part of the experiment must be in a class in your noteboook, only classes are extracted
 to the :file:`src/{class}.py` files.
 
-Then to create the stage in :code:`dvc.yaml` execute the following:
+
+Note that we could have placed all the params in the XEntropyAugmented class itself, but using the train_args dataclass helps keep
+the code more readable.  The parameters passed to XEntropyAugmented will all be written to :code:`params.yaml` 
+when the class is called.  They look like this:
 
 .. code-block::
 
-    # add/change parameters for this stage
-    inline_parms = {"lr": .0001, "experiment": 'x-entropy_augmented', "load_path": './experiment'}
+    XEntropyAugmented:
+        params:
+            kwargs:
+                batch_size: 64
+                ckpt_every: 1
+                clf_only: false
+                data_root: ./dataset
+                dataset: ./dataset
+                depth: 28
+                dropout_rate: 0.0
+                eval_every: 11
+                experiment: x-entropy_augmented
+                labels_per_class: -1
+                load_path: ./experiment
+                lr: 0.0001
+                n_classes: 10
+                n_epochs: 10
+                n_steps: 20
+                n_valid: 5000
+                norm: null
+                print_every: 100
+                print_to_log: false
+                save_dir: ./experiment
+                seed: 123456
+                sigma: 0.3
+                weight_decay: 0.0
+                width: 10
+            module: src.XEntropyAugmented
+            name: train_args
 
-    #declare the train_args stage and pass the modified/new params
-    params = train_args()
-    params(param_dict=inline_parms)
 
-This creates the parameters from the class :code:`train_args` which is a dependency of :code:`XEntropyAugmented` as declared by:
+Next declare the :code:`XEntropyAugmented` object, pass in your dataclass as the params, and call the write_graph function.
 
 .. code-block::
 
-    args: train_args = dvc.deps(train_args(load=True))
+    XEntropyAugmented(params = train_args(experiment='x-entropy_augmented', lr=.0001, load_path='./experiment')).write_graph(no_exec=True)
 
-Note that we could have placed all the params in the XEntropyAugmented class itself, but using the train_args class helps demonstrate
-dependencies, and allows code re-use through the :code:`name` argument, which can be used to create a new stage from existing code.
-In ZnTrack v0.3 this should be converted to a dataclass.
+The :code:`no_exec` flag here stops dvc from trying to execute the stage immediately, so we can proceed to setting up other stages first,
+and then use the :code:`run()` or :code:`repro()` command.
 
-
-Next declare the :code:`XEntropyAugmented` object, an object to be used as its :code:`trainer`, and then call the 
-:code:`XEntropyAugmented` instance and pass it the trainer object.
-
-.. code-block::
-
-    #declare the compute class for the XEntropyAugmented stage
-    trainer = Trainer()
-
-    #declare stage and pass the compute class
-    #this gathers the params, write them to params.yaml, then writes the stage in dvc.yaml from the Node class
-    runner = XEntropyAugmented()
-    runner(operation=trainer)
-
-
-For convenience and readability we're using another class to do the actual work, in this case called :code:`Trainer`.
+For convenience and readability we can use another class to do the actual work, in this case called :code:`Trainer`.
 This class can be anything, but in this example we've declared a base class, called :code:`Base`, and then derive
 our Trainer class from that.  This is not necessary, so all the executable code could alternately be in the run()
 function, or in another internal class function called by run.  
@@ -155,11 +164,16 @@ Then in the Node class where we want to use this we define:
 
     trainer: Base = zn.Method()
 
-Then use the __call__ function to set the class that we want to use for computation:
+    def __init__(self, params: train_args = None, operation: Base = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.operation = operation
+
+Then declare an instance of the Trainer and pass it as an argument to the stage class to set the class that we want to use for computation:
 
 .. code-block::
 
-    runner(operation=trainer)
+    trainer = Trainer()
+    XEntropyAugmented(params = train_args(experiment='x-entropy_augmented', lr=.0001, load_path='./experiment'), operation=trainer).write_graph(no_exec=True)
 
 
 After all stages have been declared we can use :code:`pdm run dvc dag` to output the DAG (`Directed Acyclic Graph <https://dvc.org/doc/command-reference/dag>`_)
@@ -167,52 +181,24 @@ of the dependencies.
 
 .. code-block:: console
 
-    +-------------+  
-    | dataset.dvc |  
-    +-------------+  
-    +--------------+             +--------------+                 +------------+                                                                                                                           
-    | train_argsL1 |             | train_argsL2 |                 | train_args |                                                                                                                           
-    +--------------+             +--------------+                 +------------+                                                                                                                           
-            *                            *                              *                                                                                                                                  
-            *                            *                              *                                                                                                                                  
-            *                            *                              *                                                                                                                                  
-    +--------------+             +--------------+             +-------------------+             +--------------------------+             +--------------------------+             +---------------------+  
-    | MaxEntropyL1 |********     | MaxEntropyL2 |******       | XEntropyAugmented |             | max-entropy-L1_augmented |             | max-entropy-L2_augmented |      *******| x-entropy_augmented |  
-    +--------------+        *****+--------------+      *******+-------------------+**           +--------------------------+      *******+--------------------------+******       +---------------------+  
-                                           ***************         ***********       ****                *               *********             **************                                              
-                                                          ***************     ****************         **       *********        **************                                                            
-                                                                         ***************  *******     *    *****   **************                                                                          
-                                                                                        ******+-----------+********                                                                                        
-                                                                                              | EvaluateX |                                                                                                
-                                                                                              +-----------+  
+    +--------------+             +--------------+             +-------------------+  
+    | MaxEntropyL1 |             | MaxEntropyL2 |             | XEntropyAugmented |  
+    +--------------+*****        +--------------+           **+-------------------+  
+                         *****           *             *****                         
+                              *****       *       *****                              
+                                   ***    *    ***                                   
+                                    +-----------+                                    
+                                    | EvaluateX |                                    
+                                    +-----------+  
 
-
-This is an over-complicated example since we are declaring all our parameters in distinct stages, so in a simplified version you 
-may only have the three computation stages, XEntropyAugmented, MaxEntropyL1, and MaxEntropyL2 as the dependencies for EvaluateX.
-Here, instead, we have the parameter stages, train_args, train_argsL1, and train_argsL2 as singular dependencies to each of the
-model training stages.  A dependency must be a file or path, so to make this work each of the parameter stages declares a metrics
-output, which the training stages will detect and use as the dependecy in the dvc.yaml file.  Similarly, the evaluate stage has three sets
-of parameters as deps, along with the outputs of the training stages.
 
 Each of the training stages outputs a neural net model file, so as long as we declare the path to the final version of the model
 it can be used as a stage dependency.
 
-ZnTrack v0.3
-^^^^^^^^^^^^
-
-As of writing this, v0.3 is not available via package manager yet, only as source, so this section will contain notes about
-converting code and workflow from v0.2 to v0.3 in preparation for that eventual release.
+Converting from ZnTrack v0.2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `Official documentation <https://zntrack.readthedocs.io/en/latest/_tutorials/migration_guide_v3.html>`_
-
-To install:
-
-.. code-block::
-
-    git clone https://github.com/zincware/ZnTrack.git
-
-    pdm add ./ZnTrack
-
 
 Practical changes to the code in this document include the following:
 
@@ -224,6 +210,84 @@ Practical changes to the code in this document include the following:
 * Node dependencies use :code:`node.load()` now instead of :code:`node(load=True)`
  
 Examples:
+
+In v0.2 we had some argument classes declared as Nodes for demonstrative purposes, but it is cleaner to make them dataclasses.
+So this:
+
+.. code-block::
+
+    @Node()
+    class train_args():
+        # define params
+        # this will write them to params.yaml
+        experiment = dvc.params()
+        dataset = dvc.params()
+        n_classes = dvc.params()    
+        n_steps = dvc.params()
+        width = dvc.params()
+        depth = dvc.params()
+        sigma = dvc.params()
+        data_root = dvc.params()
+        seed = dvc.params()
+        lr = dvc.params()
+        clf_only = dvc.params()
+        labels_per_class = dvc.params()
+        batch_size = dvc.params()
+        n_epochs = dvc.params()
+        dropout_rate = dvc.params()
+        weight_decay = dvc.params()
+        norm = dvc.params()
+        save_dir = dvc.params()
+        ckpt_every = dvc.params()
+        eval_every = dvc.params()
+        print_every = dvc.params()
+        load_path = dvc.params()
+        print_to_log = dvc.params()
+        n_valid = dvc.params()
+    
+        result = zn.metrics()
+    
+        def __call__(self, param_dict):
+            # set defaults
+            self.experiment = "energy_model"
+            self.dataset = "cifar10"
+            self.n_classes = 10
+            self.n_steps = 20
+            self.width = 10 # wide-resnet widen_factor
+            self.depth = 28  # wide-resnet depth
+            self.sigma = .03 # image transformation
+            self.data_root = "./dataset" 
+            self.seed = JEMUtils.get_parameter("seed", 1)
+            # optimization
+            self.lr = 1e-4
+            self.clf_only = False #action="store_true", help="If set, then only train the classifier")
+            self.labels_per_class = -1# help="number of labeled examples per class, if zero then use all labels")
+            self.batch_size = 64
+            self.n_epochs = JEMUtils.get_parameter("epochs", 10)
+            # regularization
+            self.dropout_rate = 0.0
+            self.sigma = 3e-2 # help="stddev of gaussian noise to add to input, .03 works but .1 is more stable")
+            self.weight_decay = 0.0
+            # network
+            self.norm = None # choices=[None, "norm", "batch", "instance", "layer", "act"], help="norm to add to weights, none works fine")
+            # logging + evaluation
+            self.save_dir = './experiment'
+            self.ckpt_every = 1 # help="Epochs between checkpoint save")
+            self.eval_every = 1 # help="Epochs between evaluation")
+            self.print_every = 100 # help="Iterations between print")
+            self.load_path = None # path for checkpoint to load
+            self.print_to_log = False #", action="store_true", help="If true, directs std-out to log file")
+            self.n_valid = 5000 # number of validation images
+        
+            # set from inline dict
+            for key in param_dict:
+                #print(key, '->', param_dict[key])
+                setattr(self, key, param_dict[key])
+            
+        def run(self):
+            self.result = self.experiment
+
+Changes to this:
 
 .. code-block::
 
@@ -253,6 +317,31 @@ Examples:
         print_every: int = 100
         print_to_log: bool = False
         n_valid: int = 5000
+
+
+And this Node:
+
+.. code-block::
+
+    @Node()
+    class XEntropyAugmented:
+    
+        args: train_args = dvc.deps(train_args(load=True))
+        trainer: Base = zn.Method()
+        result = zn.metrics()
+        model: Path = dvc.outs()  # is making the model file an outs causing it to delete the file?
+    
+            
+        def __call__(self, operation):
+            self.trainer = operation
+            self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
+    
+        @TimeIt
+        def run(self):
+            
+            self.result = self.trainer.compute(self.args)
+
+Changes to this:
 
 .. code-block::
 
@@ -285,6 +374,8 @@ Examples:
         def compute(self, inp):
             #do something
 
+
+Then the notebook is converted and the dvc.yaml stage is written with the following:
 
 .. code-block::
 
