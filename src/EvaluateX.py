@@ -16,82 +16,38 @@ from zntrack import ZnTrackProject, Node, config, dvc, zn
 from tqdm import tqdm
 import pandas as pd
 from zntrack.metadata import TimeIt
+import dataclasses
 
 
-@Node()
-class train_args():
-    # define params
-    # this will write them to params.yaml
-    experiment = dvc.params()
-    dataset = dvc.params()
-    n_classes = dvc.params()
-    n_steps = dvc.params()
-    width = dvc.params()
-    depth = dvc.params()
-    sigma = dvc.params()
-    data_root = dvc.params()
-    seed = dvc.params()
-    lr = dvc.params()
-    clf_only = dvc.params()
-    labels_per_class = dvc.params()
-    batch_size = dvc.params()
-    n_epochs = dvc.params()
-    dropout_rate = dvc.params()
-    weight_decay = dvc.params()
-    norm = dvc.params()
-    save_dir = dvc.params()
-    ckpt_every = dvc.params()
-    eval_every = dvc.params()
-    print_every = dvc.params()
-    load_path = dvc.params()
-    print_to_log = dvc.params()
-    n_valid = dvc.params()
-    
-    result = zn.metrics()
-    
-    def __call__(self, param_dict):
-        # set defaults
-        self.experiment = "energy_model"
-        self.dataset = "cifar10"
-        self.n_classes = 10
-        self.n_steps = 20
-        self.width = 10 # wide-resnet widen_factor
-        self.depth = 28  # wide-resnet depth
-        self.sigma = .03 # image transformation
-        self.data_root = "./dataset" 
-        self.seed = JEMUtils.get_parameter("seed", 1)
-        # optimization
-        self.lr = 1e-4
-        self.clf_only = False #action="store_true", help="If set, then only train the classifier")
-        self.labels_per_class = -1# help="number of labeled examples per class, if zero then use all labels")
-        self.batch_size = 64
-        self.n_epochs = JEMUtils.get_parameter("epochs", 10)
-        # regularization
-        self.dropout_rate = 0.0
-        self.sigma = 3e-2 # help="stddev of gaussian noise to add to input, .03 works but .1 is more stable")
-        self.weight_decay = 0.0
-        # network
-        self.norm = None # choices=[None, "norm", "batch", "instance", "layer", "act"], help="norm to add to weights, none works fine")
-        # logging + evaluation
-        self.save_dir = './experiment'
-        self.ckpt_every = 1 # help="Epochs between checkpoint save")
-        self.eval_every = 1 # help="Epochs between evaluation")
-        self.print_every = 100 # help="Iterations between print")
-        self.load_path = None # path for checkpoint to load
-        self.print_to_log = False #", action="store_true", help="If true, directs std-out to log file")
-        self.n_valid = 5000 # number of validation images
-        
-        # set from inline dict
-        for key in param_dict:
-            #print(key, '->', param_dict[key])
-            setattr(self, key, param_dict[key])
-            
-    def run(self):
-        self.result = self.experiment
-    
+@dataclasses.dataclass
+class train_args:
+    norm: str = None
+    load_path: str = "./experiment"
+    experiment: str = "energy-models"
+    dataset: str = "./dataset"
+    n_classes: int = 10
+    n_steps: int = 20
+    width: int = 10
+    depth: int = 28
+    sigma: float = 0.3
+    data_root: str = "./dataset" 
+    seed: int = 123456
+    lr: float = 1e-4
+    clf_only: bool = False
+    labels_per_class: int = -1
+    batch_size: int = 64
+    n_epochs: int = 10
+    dropout_rate: float = 0.0
+    weight_decay: float = 0.0
+    save_dir: str = "./experiment"
+    ckpt_every: int = 1
+    eval_every: int = 11
+    print_every: int = 100
+    print_to_log: bool = False
+    n_valid: int = 5000
 
 
-# In[119]:
+# In[3]:
 
 
 #this is a base for the Node compute functions, to split off the actual work from the dvc control flow
@@ -100,43 +56,7 @@ class Base:
         raise NotImplementedError
 
 
-# In[120]:
-
-
-# get random subset of data
-class DataSubset(Dataset):
-    def __init__(self, base_dataset, inds=None, size=-1):
-        self.base_dataset = base_dataset
-        if inds is None:
-            inds = np.random.choice(list(range(len(base_dataset))), size, replace=False)
-        self.inds = inds
-
-    def __getitem__(self, index):
-        base_ind = self.inds[index]
-        return self.base_dataset[base_ind]
-
-    def __len__(self):
-        return len(self.inds)
-
-
-# In[121]:
-
-
-# setup Wide_ResNet
-# Uses The Google Research Authors, file wideresnet.py
-class FTrain(nn.Module):
-    def __init__(self, depth=28, width=2, norm=None, dropout_rate=0.0, n_classes=10):
-        super(FTrain, self).__init__()
-        self.f = wideresnet.Wide_ResNet(depth, width, norm=norm, dropout_rate=dropout_rate)
-        self.energy_output = nn.Linear(self.f.last_dim, 1)
-        self.class_output = nn.Linear(self.f.last_dim, n_classes)
-
-    def classify(self, x):
-        penult_z = self.f(x)
-        return self.class_output(penult_z).squeeze()
-
-
-# In[122]:
+# In[4]:
 
 
 class JEMUtils:
@@ -269,11 +189,73 @@ class JEMUtils:
     
 
 
-# In[123]:
+# In[5]:
 
 
-# basic training from train.ipynb
-class Trainer(Base):
+# get random subset of data
+class DataSubset(Dataset):
+    def __init__(self, base_dataset, inds=None, size=-1):
+        self.base_dataset = base_dataset
+        if inds is None:
+            inds = np.random.choice(list(range(len(base_dataset))), size, replace=False)
+        self.inds = inds
+
+    def __getitem__(self, index):
+        base_ind = self.inds[index]
+        return self.base_dataset[base_ind]
+
+    def __len__(self):
+        return len(self.inds)
+
+
+# In[6]:
+
+
+# setup Wide_ResNet
+# Uses The Google Research Authors, file wideresnet.py
+class FTrain(nn.Module):
+    def __init__(self, depth=28, width=2, norm=None, dropout_rate=0.0, n_classes=10):
+        super(FTrain, self).__init__()
+        self.f = wideresnet.Wide_ResNet(depth, width, norm=norm, dropout_rate=dropout_rate)
+        self.energy_output = nn.Linear(self.f.last_dim, 1)
+        self.class_output = nn.Linear(self.f.last_dim, n_classes)
+
+    def classify(self, x):
+        penult_z = self.f(x)
+        return self.class_output(penult_z).squeeze()
+
+
+# In[7]:
+
+
+#Do the operations from train.ipynb and track in dvc
+#dependency is train_args stage with default name
+#outs is the path to the last_ckpt.pt model file, which serves as a dependency to the evaluation stage
+
+class XEntropyAugmented(Node):
+    
+    params: train_args = zn.Method()
+    model: Path = dvc.outs()
+    metrics: Path = dvc.metrics_no_cache() 
+    
+    def __init__(self, params: train_args = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = params
+        if params != None and not os.path.exists(os.path.join(params.save_dir, params.experiment)):
+            os.makedirs(os.path.join(params.save_dir, params.experiment))
+            
+        if not self.is_loaded:
+            self.params = train_args(experiment='x-entropy_augmented')
+        
+        self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
+        self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
+        
+
+    def run(self):
+        scores = self.compute(self.params)
+        with open(self.metrics, 'w') as outfile:
+            json.dump(scores, outfile)
+        
     
     def compute(self, inp):
         args = inp
@@ -311,10 +293,10 @@ class Trainer(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -362,7 +344,7 @@ class Trainer(Base):
 
                 # break if the loss diverged
                 if L.abs().item() > 1e8:
-                    print("Divergwence error")
+                    print("Divergence error")
                     1/0
 
                 # Optimize network using our loss function L
@@ -372,8 +354,14 @@ class Trainer(Base):
                 cur_iter += 1
 
             # do checkpointing
+            #changing to always use the same file name for each experiment and use the dvc checkpoint
+            # to cache distinct copies when needed
             if epoch % args.ckpt_every == 0:
-                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                #JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
+                with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+                    json.dump(scores, outfile)
+                make_checkpoint()
 
             # Print performance assesment 
             if epoch % args.eval_every == 0:
@@ -397,73 +385,45 @@ class Trainer(Base):
                 f.train()
 
             # do "last" checkpoint
-            JEMUtils.checkpoint(f, optim, epoch, "last_ckpt.pt", args, device)
+            #JEMUtils.checkpoint(f, optim, epoch, "last_ckpt.pt", args, device)
+            JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
 
         # write stats
-        with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
-            json.dump(scores, outfile)
+        #with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+        #    json.dump(scores, outfile)
             
         return scores
 
 
-# In[124]:
+# In[8]:
 
 
-#Do the operations from train.ipynb and track in dvc
-#dependency is train_args stage with default name
-#outs is the path to the last_ckpt.pt model file, which serves as a dependency to the evaluation stage
-
-@Node()
-class XEntropyAugmented:
-    
-    args: train_args = dvc.deps(train_args(load=True))
-    trainer: Base = zn.Method()
-    result = zn.metrics()
-    model: Path = dvc.outs()  # is making the model file an outs causing it to delete the file?
-    
-            
-    def __call__(self, operation):
-        self.trainer = operation
-        self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
-    
-    @TimeIt
-    def run(self):
-        #self.result = self.args.result
-        self.result = self.trainer.compute(self.args)
-        
-    
-        
-
-
-# In[125]:
-
-
-# add/change parameters for this stage
-@Node()
-class MaxEntropyL1:
-    args: train_args = dvc.deps(train_args(load=True, name="train_argsL1"))
-    trainer: Base = zn.Method()
-    result = zn.metrics()
+class MaxEntropyL1(Node):
+    params: train_args = zn.Method()
+    metrics: Path = dvc.metrics_no_cache()
     model: Path = dvc.outs()
+    # manually add checkpoint: true to the outs in dvc.yaml
             
-    def __call__(self, operation):
-        self.trainer = operation
-        self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
+    def __init__(self, params: train_args = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = params
+        #Make sure this path is available at the time the dvc stage is declared or it will error out
+        if params != None and not os.path.exists(os.path.join(params.save_dir, params.experiment)):
+            os.makedirs(os.path.join(params.save_dir, params.experiment))
+            
+        if not self.is_loaded:
+            self.params = train_args(experiment='max-entropy-L1_augmented')
+            
+        self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
+        self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
     
-    @TimeIt
+
     def run(self):
-        #self.result = self.args.result
-        self.result = self.trainer.compute(self.args)
-        
-
-
-# In[127]:
-
-
-#trainer class for MaxEntropyL1 stage's compute function
-
-class TrainerL1(Base):
-    
+        scores = self.compute(self.params)
+        with open(self.metrics, 'w') as outfile:
+            json.dump(scores, outfile)
+            
+            
     def compute(self, inp):
         args = inp
         
@@ -499,10 +459,10 @@ class TrainerL1(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -576,7 +536,10 @@ class TrainerL1(Base):
 
             # do checkpointing
             if epoch % args.ckpt_every == 0:
-                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
+                with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+                    json.dump(scores, outfile)
+                make_checkpoint()
             
             # Print performance assesment 
             if epoch % args.eval_every == 0:
@@ -600,43 +563,44 @@ class TrainerL1(Base):
                 f.train()
 
             # do "last" checkpoint
-            JEMUtils.checkpoint(f, optim, epoch, "last_ckpt.pt", args, device)
+            JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
 
         # write stats
-        with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
-            json.dump(scores, outfile)
+        #with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+        #    json.dump(scores, outfile)
             
         return scores
 
 
-# In[128]:
+# In[10]:
 
 
-@Node()
-class MaxEntropyL2:
-    args: train_args = dvc.deps(train_args(load=True, name="train_argsL2"))
-    trainer: Base = zn.Method()
-    result = zn.metrics()
+class MaxEntropyL2(Node):
+    params: train_args = zn.Method()
+    metrics: Path = dvc.metrics_no_cache()
     model: Path = dvc.outs()
+    # manually add checkpoint: true to the outs in dvc.yaml
             
-    def __call__(self, operation):
-        self.trainer = operation
-        self.model = Path(os.path.join(os.path.join(self.args.save_dir, self.args.experiment), "last_ckpt.pt"))
+    def __init__(self, params: train_args = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = params
+        #Make sure this path is available at the time the dvc stage is declared or it will error out
+        if params != None and not os.path.exists(os.path.join(params.save_dir, params.experiment)):
+            os.makedirs(os.path.join(params.save_dir, params.experiment))
+            
+        if not self.is_loaded:
+            self.params = train_args(experiment='max-entropy-L2_augmented')
+            
+        self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
+        self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
     
-    @TimeIt
+
     def run(self):
-        #self.result = self.args.result
-        self.result = self.trainer.compute(self.args)
-        
-
-
-# In[130]:
-
-
-#compute class for the above stage
-
-class TrainerL2(Base):
-    
+        scores = self.compute(self.params)
+        with open(self.metrics, 'w') as outfile:
+            json.dump(scores, outfile)
+            
+            
     def compute(self, inp):
         args = inp
         
@@ -672,10 +636,10 @@ class TrainerL2(Base):
         epoch_start = 0
     
         # load checkpoint?
-        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt')):
+        if args.load_path and os.path.exists(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt')):
             print(f"loading model from {os.path.join(args.load_path, args.experiment)}")
             #ckpt_dict = t.load(os.path.join(args.load_path, args.experiment))
-            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'ckpt_9.pt'))
+            ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), f'ckpt_{args.experiment}.pt'))
             f.load_state_dict(ckpt_dict["model_state_dict"])
             optim.load_state_dict(ckpt_dict['optimizer_state_dict'])
             epoch_start = ckpt_dict['epoch']
@@ -750,7 +714,10 @@ class TrainerL2(Base):
 
             # do checkpointing
             if epoch % args.ckpt_every == 0:
-                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{epoch}.pt', args, device)
+                JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
+                with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+                    json.dump(scores, outfile)
+                make_checkpoint()
 
             
             # Print performance assesment 
@@ -775,16 +742,16 @@ class TrainerL2(Base):
                 f.train()
 
             # do "last" checkpoint
-            JEMUtils.checkpoint(f, optim, epoch, "last_ckpt.pt", args, device)
+            JEMUtils.checkpoint(f, optim, epoch, f'ckpt_{args.experiment}.pt', args, device)
 
         # write stats
-        with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
-            json.dump(scores, outfile)
+        #with open(os.path.join(args.save_dir, args.experiment) + '_scores.json', 'w') as outfile:
+        #    json.dump(scores, outfile)
             
         return scores
 
 
-# In[131]:
+# In[12]:
 
 
 class F(nn.Module):
@@ -803,7 +770,9 @@ class F(nn.Module):
         return self.class_output(penult_z)
 
 
-# In[133]:
+# In[14]:
+
+
 
 
 class CCF(F):
@@ -818,77 +787,110 @@ class CCF(F):
             return t.gather(logits, 1, y[:, None])
 
 
-# In[134]:
+# In[15]:
 
 
-#class to hold the parameters for the evaluate calibration stage
-
-@Node()
-
-# Setup parameters
+@dataclasses.dataclass
+@dataclasses.dataclass
 class eval_args():
     
-    experiment = dvc.params()
-    dataset = dvc.params()
-    n_steps = dvc.params()
-    width = dvc.params()
-    depth = dvc.params()
-    sigma = dvc.params()
-    data_root = dvc.params()
-    seed = dvc.params()    
-    norm = dvc.params()
-    save_dir = dvc.params()
-    print_to_log = dvc.params()
-    uncond = dvc.params()
-    load_path = dvc.params()
+    experiment: str = "energy_model"
+    dataset: str = "cifar_test"
+    n_steps: int = 20
+    width: int = 10
+    depth: int = 28
+    sigma: float = .03
+    data_root: str = "./dataset"
+    seed: int = 123456
+    norm: str = None
+    save_dir: str = "./experiment"
+    print_to_log: bool = False
+    uncond: bool = False
+    load_path: str = "./experiment"
+
+
+# In[20]:
+
+
+class EvaluateX(Node):
     
-    result = zn.metrics()
-    
-    #src = dvc.deps(Path("src", self.experiment))
+    #from the DVC docs:  "Stage dependencies can be any file or directory"
+    # so the eval_args stages have to output something in order to be used as deps here
+    # so we use the metrics files like:  nodes/x-entropy_augmented/metrics_no_cache.json
+    #args = dvc.deps([eval_args(load=True, name="x-entropy_augmented"), 
+    #                 eval_args(load=True, name="max-entropy-L1_augmented"), 
+    #                 eval_args(load=True, name="max-entropy-L2_augmented")])
 
     
-    def __call__(self, param_dict):
-        self.experiment = "energy_model"
-        self.data_root = "./dataset" 
-        self.dataset = "cifar_test" #, type=str, choices=["cifar_train", "cifar_test", "svhn_test", "svhn_train"], help="Dataset to use when running test_clf for classification accuracy")
-        self.seed = JEMUtils.get_parameter("seed", 1)
-        # regularization
-        self.sigma = 3e-2
-        # network
-        self.norm = None #, choices=[None, "norm", "batch", "instance", "layer", "act"])
-        # EBM specific
-        self.n_steps = 20 # help="number of steps of SGLD per iteration, 100 works for short-run, 20 works for PCD")
-        self.width = 10 # help="WRN width parameter")
-        self.depth = 28 # help="WRN depth parameter")        
-        self.uncond = False # "store_true" # help="If set, then the EBM is unconditional")
-        # logging + evaluation
-        self.save_dir = './experiment'
-        self.print_to_log = False
+    #models = dvc.deps([XEntropyAugmented(load=True), MaxEntropyL1(load=True), MaxEntropyL2(load=True)])
+
+    #models = dvc.deps([XEntropyAugmented.load(), MaxEntropyL1.load(), MaxEntropyL2.load()])
+    models = dvc.deps([XEntropyAugmented(), MaxEntropyL1(), MaxEntropyL2()])
+    params: eval_args = zn.Method()
         
-        # set from inline dict
-        for key in param_dict:
-            #print(key, '->', param_dict[key])
-            setattr(self, key, param_dict[key])
-            
-    def run(self):
-        self.result = {"experiment": self.experiment}
-
-
-# In[135]:
-
-
-# compute class for the evaluation stage
-
-class Calibration(Base):
+    # add plots to dvc tracking
+    # this would be better if the paths could be defined by the passed args, but can't see how to 
+    plot0: Path = dvc.plots_no_cache("./experiment/x-entropy_augmented_calibration.csv")
+    plot1: Path = dvc.plots_no_cache("./experiment/max-entropy-L1_augmented_calibration.csv")
+    plot2: Path = dvc.plots_no_cache("./experiment/max-entropy-L2_augmented_calibration.csv")
+    #manually added template: confidence to the plots in dvc.yaml
     
-    def calibration(self, f, args, device):
+    def __init__(self, params: eval_args = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = params
+        if not self.is_loaded:
+            self.params = eval_args(experiment="energy_model")
+    
+    
+
+    def run(self):
+        for arg in self.models:
+            self.compute(arg, self.params)
+            #with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
+            #    json.dump(scores, outfile)
+            
+            
+    def compute(self, inp, params):
+        args = inp
+        if not os.path.exists(params.save_dir):
+            os.makedirs(params.save_dir)
+        
+        if params.print_to_log:
+            sys.stdout = open(f'{os.path.join(params.save_dir, args.experiment)}/log.txt', 'w')
+
+        if not os.path.exists(os.path.join(params.save_dir, args.experiment)):
+            os.makedirs(os.path.join(params.save_dir, args.experiment))
+
+        t.manual_seed(params.seed)
+        if t.cuda.is_available():
+            t.cuda.manual_seed_all(params.seed)
+
+        device = t.device('cuda' if t.cuda.is_available() else 'cpu')
+
+        model_cls = F if params.uncond else CCF
+        f = model_cls(params.depth, params.width, params.norm)
+        print(f"loading model from {os.path.join(os.path.join(params.load_path, args.experiment), 'last_ckpt.pt')}")
+
+        # load em up
+        ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.experiment), 'last_ckpt.pt'))
+        f.load_state_dict(ckpt_dict["model_state_dict"])
+        #replay_buffer = ckpt_dict["replay_buffer"]
+
+        f = f.to(device)
+
+        # do calibration
+        resultfile = self.calibration(f, args, params, device)
+        return resultfile
+    
+    
+    def calibration(self, f, args, params, device):
         transform_test = tr.Compose(
             [tr.ToTensor(),
              tr.Normalize((.5, .5, .5), (.5, .5, .5)),
-             lambda x: x + t.randn_like(x) * args.sigma]
+             lambda x: x + t.randn_like(x) * params.sigma]
         )
 
-        def sample(x, n_steps=args.n_steps):
+        def sample(x, n_steps=params.n_steps):
             x_k = t.autograd.Variable(x.clone(), requires_grad=True)
             # sgld
             for k in range(n_steps):
@@ -897,14 +899,14 @@ class Calibration(Base):
             final_samples = x_k.detach()
             return final_samples
 
-        if args.dataset == "cifar_train":
-            dset = tv.datasets.CIFAR10(root=args.data_root, transform=transform_test, download=True, train=True)
-        elif args.dataset == "cifar_test":
-            dset = tv.datasets.CIFAR10(root=args.data_root, transform=transform_test, download=True, train=False)
-        elif args.dataset == "svhn_train":
-            dset = tv.datasets.SVHN(root=args.data_root, transform=transform_test, download=True, split="train")
+        if params.dataset == "cifar_train":
+            dset = tv.datasets.CIFAR10(root=params.data_root, transform=transform_test, download=True, train=True)
+        elif params.dataset == "cifar_test":
+            dset = tv.datasets.CIFAR10(root=params.data_root, transform=transform_test, download=True, train=False)
+        elif params.dataset == "svhn_train":
+            dset = tv.datasets.SVHN(root=params.data_root, transform=transform_test, download=True, split="train")
         else:  # args.dataset == "svhn_test":
-            dset = tv.datasets.SVHN(root=args.data_root, transform=transform_test, download=True, split="test")
+            dset = tv.datasets.SVHN(root=params.data_root, transform=transform_test, download=True, split="test")
 
         dload = DataLoader(dset, batch_size=1, shuffle=False, num_workers=4, drop_last=False)
 
@@ -950,95 +952,11 @@ class Calibration(Base):
     
         # save calibration  in a text file
             
-        pd.DataFrame({'accuracy': accu, 'ECE': ECE}).to_csv(path_or_buf=os.path.join(args.save_dir, args.experiment) + "_calibration.csv", index_label="index")
-        outputcsv = os.path.join(args.save_dir, args.experiment) + "_calibration.csv"
+        pd.DataFrame({'accuracy': accu, 'ECE': ECE}).to_csv(path_or_buf=os.path.join(params.save_dir, args.experiment) + "_calibration.csv", index_label="index")
+        outputcsv = os.path.join(params.save_dir, args.experiment) + "_calibration.csv"
         return outputcsv
-        
-        
-    def compute(self, inp):
-        args = inp
-        if not os.path.exists(args.save_dir):
-            os.makedirs(args.save_dir)
-        
-        if args.print_to_log:
-            sys.stdout = open(f'{os.path.join(args.save_dir, args.experiment)}/log.txt', 'w')
-
-        if not os.path.exists(os.path.join(args.save_dir, args.experiment)):
-            os.makedirs(os.path.join(args.save_dir, args.experiment))
-
-        t.manual_seed(args.seed)
-        if t.cuda.is_available():
-            t.cuda.manual_seed_all(args.seed)
-
-        device = t.device('cuda' if t.cuda.is_available() else 'cpu')
-
-        model_cls = F if args.uncond else CCF
-        f = model_cls(args.depth, args.width, args.norm)
-        print(f"loading model from {os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt')}")
-
-        # load em up
-        ckpt_dict = t.load(os.path.join(os.path.join(args.load_path, args.experiment), 'last_ckpt.pt'))
-        f.load_state_dict(ckpt_dict["model_state_dict"])
-        #replay_buffer = ckpt_dict["replay_buffer"]
-
-        f = f.to(device)
-
-        # do calibration
-        resultfile = self.calibration(f, args, device)
-        return resultfile
 
 
-# In[136]:
+# In[17]:
 
-
-#stage EvaluateX
-#multiple dependencies of eval_args with appropriate names for each stage they are testing
-# and the model files from the other stages so the dependency graph flows in the correct order
-
-@Node()
-class EvaluateX:
-    
-    #from the DVC docs:  "Stage dependencies can be any file or directory"
-    # so the eval_args stages have to output something in order to be used as deps here
-    # so we use the metrics files like:  nodes/x-entropy_augmented/metrics_no_cache.json
-    args = dvc.deps([eval_args(load=True, name="x-entropy_augmented"), 
-                     eval_args(load=True, name="max-entropy-L1_augmented"), 
-                     eval_args(load=True, name="max-entropy-L2_augmented")])
-    #arg0: eval_args = dvc.deps(eval_args(name="x-entropy_augmented", load=True))
-    
-    models = dvc.deps([XEntropyAugmented(load=True), MaxEntropyL1(load=True), MaxEntropyL2(load=True)])
-    
-    calibration: Base = zn.Method()
-   
-    result: Path = dvc.outs()
-    
-    # add plots to dvc tracking
-    # this would be better if the paths could be defined by the passed args, but can't see how to 
-    plot0: Path = dvc.plots("./experiment/x-entropy_augmented_calibration.csv")
-    plot1: Path = dvc.plots("./experiment/max-entropy-L1_augmented_calibration.csv")
-    plot2: Path = dvc.plots("./experiment/max-entropy-L2_augmented_calibration.csv")
-    
-    #def __init__(self):
-    #    self.result = Path('./experiment/joint_energy_models_scores.json')
-        
-            
-    def __call__(self, operation):
-        self.calibration = operation
-        
-    
-    @TimeIt
-    def run(self):
-        #scores = {}
-        for arg in self.args:
-            self.calibration.compute(arg)
-            #with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
-            #    json.dump(scores, outfile)
-            
-            
-
-
-# In[137]:
-
-
-#declare all the args for evaluation stage
 

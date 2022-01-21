@@ -534,3 +534,26 @@ If you don't actually need the dependency then simply move the parameters into t
 
         def run(self):
             # do training
+
+*Problem:* You get an error on a Node class with node dependencies like:
+
+.. code-block::
+
+    AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
+
+*Solution:*
+
+If your dependencies need to be loaded, but you haven't run the experiment yet, then :code:`load()`
+may be returning a None object.
+
+Change this:
+
+.. code-block::
+
+    models = dvc.deps([XEntropyAugmented.load(), MaxEntropyL1.load(), MaxEntropyL2.load()])
+
+To this:
+
+    models = dvc.deps([XEntropyAugmented(), MaxEntropyL1(), MaxEntropyL2()])
+
+Then run the cell with your Node class, execute write_graph, and then change it back after running :code:`repro()`.
