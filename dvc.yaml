@@ -1,128 +1,49 @@
 stages:
-  train_args:
-    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
-      \ name='train_args').run()\" "
-    deps:
-    - src/train_args.py
-    params:
-    - train_args
-    metrics:
-    - nodes/train_args/metrics_no_cache.json:
-        cache: false
   XEntropyAugmented:
-    cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented(load=True,\
-      \ name='XEntropyAugmented').run()\" "
+    cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented.load(name='XEntropyAugmented').run_and_save()\"\
+      \ "
     deps:
-    - nodes/train_args/metrics_no_cache.json
     - src/XEntropyAugmented.py
-    params:
-    - XEntropyAugmented
     metrics:
-    - nodes/XEntropyAugmented/metadata.json
-    - nodes/XEntropyAugmented/metrics_no_cache.json:
+    - experiment/x-entropy_augmented_scores.json:
         cache: false
     outs:
-    - experiment/x-entropy_augmented/last_ckpt.pt
-  train_argsL1:
-    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
-      \ name='train_argsL1').run()\" "
-    deps:
-    - src/train_args.py
-    params:
-    - train_argsL1
-    metrics:
-    - nodes/train_argsL1/metrics_no_cache.json:
-        cache: false
+    - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
   MaxEntropyL1:
-    cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1(load=True,\
-      \ name='MaxEntropyL1').run()\" "
+    cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1.load(name='MaxEntropyL1').run_and_save()\"\
+      \ "
     deps:
-    - nodes/train_argsL1/metrics_no_cache.json
     - src/MaxEntropyL1.py
-    params:
-    - MaxEntropyL1
-    metrics:
-    - nodes/MaxEntropyL1/metadata.json
-    - nodes/MaxEntropyL1/metrics_no_cache.json:
-        cache: false
     outs:
-    - experiment/max-entropy-L1_augmented/last_ckpt.pt
-  train_argsL2:
-    cmd: "python3 -c \"from src.train_args import train_args; train_args(load=True,\
-      \ name='train_argsL2').run()\" "
-    deps:
-    - src/train_args.py
-    params:
-    - train_argsL2
+    - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
     metrics:
-    - nodes/train_argsL2/metrics_no_cache.json:
+    - experiment/max-entropy-L1_augmented_scores.json:
         cache: false
   MaxEntropyL2:
-    cmd: "python3 -c \"from src.MaxEntropyL2 import MaxEntropyL2; MaxEntropyL2(load=True,\
-      \ name='MaxEntropyL2').run()\" "
+    cmd: "python3 -c \"from src.MaxEntropyL2 import MaxEntropyL2; MaxEntropyL2.load(name='MaxEntropyL2').run_and_save()\"\
+      \ "
     deps:
-    - nodes/train_argsL2/metrics_no_cache.json
     - src/MaxEntropyL2.py
-    params:
-    - MaxEntropyL2
-    metrics:
-    - nodes/MaxEntropyL2/metadata.json
-    - nodes/MaxEntropyL2/metrics_no_cache.json:
-        cache: false
     outs:
-    - experiment/max-entropy-L2_augmented/last_ckpt.pt
-  x-entropy_augmented:
-    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='x-entropy_augmented').run()\"\
-      \ "
-    deps:
-    - src/eval_args.py
-    params:
-    - x-entropy_augmented
+    - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
     metrics:
-    - nodes/x-entropy_augmented/metrics_no_cache.json:
-        cache: false
-  max-entropy-L1_augmented:
-    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='max-entropy-L1_augmented').run()\"\
-      \ "
-    deps:
-    - src/eval_args.py
-    params:
-    - max-entropy-L1_augmented
-    metrics:
-    - nodes/max-entropy-L1_augmented/metrics_no_cache.json:
-        cache: false
-  max-entropy-L2_augmented:
-    cmd: "python3 -c \"from src.eval_args import eval_args; eval_args(load=True, name='max-entropy-L2_augmented').run()\"\
-      \ "
-    deps:
-    - src/eval_args.py
-    params:
-    - max-entropy-L2_augmented
-    metrics:
-    - nodes/max-entropy-L2_augmented/metrics_no_cache.json:
+    - experiment/max-entropy-L2_augmented_scores.json:
         cache: false
   EvaluateX:
-    cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX(load=True, name='EvaluateX').run()\"\
+    cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX.load(name='EvaluateX').run_and_save()\"\
       \ "
     deps:
-    - experiment/max-entropy-L1_augmented/last_ckpt.pt
-    - experiment/max-entropy-L2_augmented/last_ckpt.pt
-    - experiment/x-entropy_augmented/last_ckpt.pt
-    - nodes/MaxEntropyL1/metrics_no_cache.json
-    - nodes/MaxEntropyL2/metrics_no_cache.json
-    - nodes/XEntropyAugmented/metrics_no_cache.json
-    - nodes/max-entropy-L1_augmented/metrics_no_cache.json
-    - nodes/max-entropy-L2_augmented/metrics_no_cache.json
-    - nodes/x-entropy_augmented/metrics_no_cache.json
+    - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
+    - experiment/max-entropy-L1_augmented_scores.json
+    - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
+    - experiment/max-entropy-L2_augmented_scores.json
+    - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
+    - experiment/x-entropy_augmented_scores.json
     - src/EvaluateX.py
-    params:
-    - EvaluateX
-    metrics:
-    - nodes/EvaluateX/metadata.json
     plots:
-    - experiment/max-entropy-L1_augmented_calibration.csv:
-        y: accuracy
-    - experiment/max-entropy-L2_augmented_calibration.csv:
-        y: accuracy
-    - experiment/x-entropy_augmented_calibration.csv:
-        y: accuracy
+    - ./experiment/max-entropy-L1_augmented_calibration.csv:
+        cache: false
+    - ./experiment/max-entropy-L2_augmented_calibration.csv:
+        cache: false
+    - ./experiment/x-entropy_augmented_calibration.csv:
+        cache: false

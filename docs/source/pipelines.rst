@@ -9,28 +9,62 @@ Pipelines are useful in many machine learning experiments, especially if you hav
 Or it can read a pre-defined `yaml <https://dvc.org/doc/user-guide/project-structure/pipelines-files>`_ file if you prefer to write it manually.
 Follow the links to see examples of command line generated :code:`dvc.yaml` files. The following example was generated using :code:`ZnTrack`.
 
-Example stage:
+Example stages:
 
 .. code-block::
 
     stages:
         XEntropyAugmented:
-            cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented(load=True,\
-              \ name='XEntropyAugmented').run()\" "
+            cmd: "python3 -c \"from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented.load(name='XEntropyAugmented').run_and_save()\"\
+            \ "
             deps:
-            - nodes/train_args/metrics_no_cache.json
             - src/XEntropyAugmented.py
-            params:
-            - XEntropyAugmented
             metrics:
-            - nodes/XEntropyAugmented/metadata.json
-            - nodes/XEntropyAugmented/metrics_no_cache.json:
+            - experiment/x-entropy_augmented_scores.json:
                 cache: false
             outs:
-            - experiment/x-entropy_augmented/last_ckpt.pt
+            - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
+        MaxEntropyL1:
+            cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1.load(name='MaxEntropyL1').run_and_save()\"\
+            \ "
+            deps:
+            - src/MaxEntropyL1.py
+            outs:
+            - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
+            metrics:
+            - experiment/max-entropy-L1_augmented_scores.json:
+                cache: false
+        MaxEntropyL2:
+            cmd: "python3 -c \"from src.MaxEntropyL2 import MaxEntropyL2; MaxEntropyL2.load(name='MaxEntropyL2').run_and_save()\"\
+            \ "
+            deps:
+            - src/MaxEntropyL2.py
+            outs:
+            - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
+            metrics:
+            - experiment/max-entropy-L2_augmented_scores.json:
+                cache: false
+        EvaluateX:
+            cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX.load(name='EvaluateX').run_and_save()\"\
+            \ "
+            deps:
+            - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
+            - experiment/max-entropy-L1_augmented_scores.json
+            - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
+            - experiment/max-entropy-L2_augmented_scores.json
+            - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
+            - experiment/x-entropy_augmented_scores.json
+            - src/EvaluateX.py
+            plots:
+            - ./experiment/max-entropy-L1_augmented_calibration.csv:
+                cache: false
+            - ./experiment/max-entropy-L2_augmented_calibration.csv:
+                cache: false
+            - ./experiment/x-entropy_augmented_calibration.csv:
+                cache: false
 
 
-ZnTrack (v0.2) Nodes
+ZnTrack (v0.3) Nodes
 --------------------
 
 An alternative to command line dvc in this documentation is `ZnTrack <https://github.com/zincware/ZnTrack>`_, which defines stages
@@ -86,7 +120,7 @@ Example:
             #do the work
 
 
-Declaring and calling this class in a jupyter-notebook results in the file :code:`src/XEntropyAugmented.py` being generated from all the 
+Declaring this class and calling :code:`write_graph()` in a jupyter-notebook results in the file :code:`src/XEntropyAugmented.py` being generated from all the 
 python classes contained in the notebook, and the stage being written to :code:`dvc.yaml`.  
 
 **Note:** all code you want to be runnable as part of the experiment must be in a class in your noteboook, only classes are extracted
@@ -139,10 +173,9 @@ Next declare the :code:`XEntropyAugmented` object, pass in your dataclass as the
 The :code:`no_exec` flag here stops dvc from trying to execute the stage immediately, so we can proceed to setting up other stages first,
 and then use the :code:`run()` or :code:`repro()` command.
 
-For convenience and readability we can use another class to do the actual work, in this case called :code:`Trainer`.
+For convenience and readability we can alternately use another class to do the actual work, in this case called :code:`Trainer`.
 This class can be anything, but in this example we've declared a base class, called :code:`Base`, and then derive
-our Trainer class from that.  This is not necessary, so all the executable code could alternately be in the run()
-function, or in another internal class function called by run.  
+our Trainer class from that. 
 
 .. code-block::
 
