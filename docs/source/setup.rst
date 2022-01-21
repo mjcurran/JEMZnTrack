@@ -114,7 +114,8 @@ ZnTrack is available to pdm, so
 
     pdm add zntrack
 
-will fetch the latest published version.  Versions can be specified to pdm like :code:`pdm add zntrack~=0.2` if necessary.
+will fetch the latest published version.  Versions can be specified to pdm like :code:`pdm add zntrack~=0.3` if necessary.
+
 If you wish to use a version that isn't yet available to pdm then clone the git repo `<https://github.com/zincware/ZnTrack.git>`_
 into your workspace and run :code:`pdm add ./ZnTrack` to include the package.
 

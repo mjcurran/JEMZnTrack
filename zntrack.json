@@ -1,0 +1,75 @@
+{
+    "XEntropyAugmented": {
+        "params": {
+            "_type": "zn.method"
+        },
+        "model": {
+            "_type": "pathlib.Path",
+            "value": "experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt"
+        },
+        "metrics": {
+            "_type": "pathlib.Path",
+            "value": "experiment/x-entropy_augmented_scores.json"
+        }
+    },
+    "MaxEntropyL1": {
+        "params": {
+            "_type": "zn.method"
+        },
+        "metrics": {
+            "_type": "pathlib.Path",
+            "value": "experiment/max-entropy-L1_augmented_scores.json"
+        },
+        "model": {
+            "_type": "pathlib.Path",
+            "value": "experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt"
+        }
+    },
+    "MaxEntropyL2": {
+        "params": {
+            "_type": "zn.method"
+        },
+        "metrics": {
+            "_type": "pathlib.Path",
+            "value": "experiment/max-entropy-L2_augmented_scores.json"
+        },
+        "model": {
+            "_type": "pathlib.Path",
+            "value": "experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt"
+        }
+    },
+    "EvaluateX": {
+        "models": [
+            {
+                "_type": "ZnTrackType",
+                "value": {
+                    "module": "__main__",
+                    "cls": "XEntropyAugmented",
+                    "name": "XEntropyAugmented"
+                }
+            },
+            {
+                "_type": "ZnTrackType",
+                "value": {
+                    "module": "__main__",
+                    "cls": "MaxEntropyL1",
+                    "name": "MaxEntropyL1"
+                }
+            },
+            {
+                "_type": "ZnTrackType",
+                "value": {
+                    "module": "__main__",
+                    "cls": "MaxEntropyL2",
+                    "name": "MaxEntropyL2"
+                }
+            }
+        ],
+        "params": {
+            "_type": "zn.method"
+        },
+        "plot0": "./experiment/x-entropy_augmented_calibration.csv",
+        "plot1": "./experiment/max-entropy-L1_augmented_calibration.csv",
+        "plot2": "./experiment/max-entropy-L2_augmented_calibration.csv"
+    }
+}
