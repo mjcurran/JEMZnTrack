@@ -148,3 +148,7 @@ dvc_plots/
 /train_max_entropy_L2.py
 /evaluate_calibration.py
 /EvaluateX
+
+docs/.vscode/
+docs/.DS_Store
+.DS_Store
