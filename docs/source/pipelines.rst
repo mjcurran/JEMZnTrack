@@ -68,7 +68,7 @@ ZnTrack (v0.3) Nodes
 --------------------
 
 An alternative to command line dvc in this documentation is `ZnTrack <https://github.com/zincware/ZnTrack>`_, which defines stages
-in python classes.  Using the :code:`@Node()` annotation on a class tells the zntrack module to interpret the class as a pipeline stage,
+in python classes.  Inheriting from the :code:`Node()` class tells the zntrack module to interpret the class as a pipeline stage,
 and thus write it to the :code:`dvc.yaml` file for you.  :code:`ZnTrack` documentation can be found here: `<https://zntrack.readthedocs.io/en/latest/_overview/01_Intro.html>`_
 
 
@@ -556,4 +556,71 @@ To this:
 
     models = dvc.deps([XEntropyAugmented(), MaxEntropyL1(), MaxEntropyL2()])
 
-Then run the cell with your Node class, execute write_graph, and then change it back after running :code:`repro()`.
+Then run the cell with your Node class, execute :code:`write_graph()`, and then change it back after running :code:`repro()`.
+
+Alternatively, you may have to run the stages that become dependencies before declaring the stage that will load the outputs.
+This is a disadvantage in v0.3 where the :code:`write_graph()` function does both the notebook conversion and the stage :code:`dvc.yaml` 
+definition.  The :code:`dvc.yaml` file is no different based on setting the deps :code:`.load()` or not, but the class
+behavior when :code:`.run()` is called will be different.
+
+*Problem:* You want to organize your code into seperate notebooks for each stage, but you get circular dependency errors.
+
+The ZnTrack function which converts the classes in your notebook into :code:`.py` files also copies in all 
+:code:`import` statements, so if you have other local imports then pay attention to where they are called.
+If you have several classes which are re-used it may be simpler to just organize all your classes in the same
+notebook together rather than worry about precise import statements.
+
+*Problem:*  When running an experiment you receive an error:
+
+.. code-block::
+
+    AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
+
+*Solution:*  This should be related to something in your Node class :code:`__init__()`.  Try adding a test to 
+see if the class object is loaded, like so:
+
+.. code-block::
+
+    def __init__(self, params: train_args = None, operation: Base = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params = params
+        if not self.is_loaded:
+            self.params = train_args(experiment='x-entropy_augmented')
+
+
+You may also have to set some values in the class definition even if you are assigning paths to metrics, or anything
+else within the :code:`__init__()`.  It may be tempting to keep these things totally dynamic, but that may introduce
+dvc file tracking issues
+
+Example:
+
+.. code-block::
+
+    model: Path = dvc.outs("./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt")
+    metrics: Path = dvc.metrics_no_cache("./experiment/x-entropy_augmented_scores.json")
+
+
+*Problem:*  You see a CalledProcessError when trying to write a graph node and execute.
+
+Example:
+
+.. code-block::
+
+    CalledProcessError: Command '['dvc', 'run', '-n', 'XEntropyAugmented', '--force', '--deps', 'src/XEntropyAugmented.py', 
+    '--outs', './experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt', '--metrics-no-cache', 
+    './experiment/x-entropy_augmented_scores.json', 
+    'python3 -c "from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented.load(name=\'XEntropyAugmented\').run_and_save()" ']' 
+    returned non-zero exit status 1.
+
+*Solution:*  If you can run the same command it is generating on the command line you may see a better error.
+
+Example:
+
+.. code-block:: console
+
+    pdm run dvc run -n XEntropyAugmented --force --deps src/XEntropyAugmented.py \
+    --outs experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt --metrics-no-cache experiment/x-entropy_augmented_scores.json \
+    python3 -c "from src.XEntropyAugmented import XEntropyAugmented; XEntropyAugmented.load(name='XEntropyAugmented').run_and_save()"
+
+This is the equivalent command from the error above, running it should give you the actual python error which is stopping execution instead
+of a shell error.
