@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 import wideresnet
 import pdb
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from numpy import genfromtxt
 import yaml
 
@@ -27,9 +27,9 @@ class DataSubset(Dataset):
         return len(self.inds)
 
 
-class F(nn.Module):
+class FTrain(nn.Module):
     def __init__(self, depth=28, width=2, norm=None, dropout_rate=0.0, n_classes=10):
-        super(F, self).__init__()
+        super(FTrain, self).__init__()
         self.f = wideresnet.Wide_ResNet(depth, width, norm=norm, dropout_rate=dropout_rate)
         self.energy_output = nn.Linear(self.f.last_dim, 1)
         self.class_output = nn.Linear(self.f.last_dim, n_classes)
@@ -37,6 +37,34 @@ class F(nn.Module):
     def classify(self, x):
         penult_z = self.f(x)
         return self.class_output(penult_z).squeeze()
+
+
+class F2(nn.Module):
+    def __init__(self, depth=28, width=2, norm=None):
+        super(F2, self).__init__()
+        self.f = wideresnet.Wide_ResNet(depth, width, norm=norm)
+        self.energy_output = nn.Linear(self.f.last_dim, 1)
+        self.class_output = nn.Linear(self.f.last_dim, 10)
+
+    def forward(self, x, y=None):
+        penult_z = self.f(x)
+        return self.energy_output(penult_z).squeeze()
+
+    def classify(self, x):
+        penult_z = self.f(x)
+        return self.class_output(penult_z)
+
+
+class CCF(F2):
+    def __init__(self, depth=28, width=2, norm=None):
+        super(CCF, self).__init__(depth, width, norm=norm)
+
+    def forward(self, x, y=None):
+        logits = self.classify(x)
+        if y is None:
+            return logits.logsumexp(1)
+        else:
+            return t.gather(logits, 1, y[:, None])
 
 
 class Base:
