@@ -26,4 +26,5 @@ Indices and tables
    pipelines
    running
    checkpointing
+   datasets
    

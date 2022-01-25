@@ -166,16 +166,3 @@ related metrics.
     ├─╨ 0483802             02:09 PM                         !      0    0.95887     0.12913    0.9605    0.12092              
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-The DVC cache
--------------
-
-If you are working with a large input data set and a large model then disk usage can be a concern,
-whether you are running experiments on a local machine or a shared system.  DVC tries not to duplicate
-data, but if you have your dataset marked as a dependency then you should expect it to be stored in the
-cache regardless of it being downloaded in your code or fetched from a remote dvc repository.
-
-For extremely large datasets that will be used in multiple projects, or by multiple users on the same
-system, configuring a `shared cache <https://dvc.org/doc/user-guide/large-dataset-optimization>`_ for dvc is advantageous.
-Also see `external dependencies <https://dvc.org/doc/user-guide/external-dependencies>`_ and 
-`managing external data <https://dvc.org/doc/user-guide/managing-external-data>`_ documentation from DVC
-for methods to reduce disk space usage by avoiding data duplication.
