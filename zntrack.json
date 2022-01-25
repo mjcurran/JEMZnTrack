@@ -3,14 +3,8 @@
         "params": {
             "_type": "zn.method"
         },
-        "model": {
-            "_type": "pathlib.Path",
-            "value": "experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt"
-        },
-        "metrics": {
-            "_type": "pathlib.Path",
-            "value": "experiment/x-entropy_augmented_scores.json"
-        }
+        "model": "./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt",
+        "metrics": "./experiment/x-entropy_augmented_scores.json"
     },
     "MaxEntropyL1": {
         "params": {
@@ -23,6 +17,9 @@
         "model": {
             "_type": "pathlib.Path",
             "value": "experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt"
+        },
+        "operation": {
+            "_type": "zn.method"
         }
     },
     "MaxEntropyL2": {
@@ -36,6 +33,9 @@
         "model": {
             "_type": "pathlib.Path",
             "value": "experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt"
+        },
+        "operation": {
+            "_type": "zn.method"
         }
     },
     "EvaluateX": {
@@ -43,7 +43,7 @@
             {
                 "_type": "ZnTrackType",
                 "value": {
-                    "module": "__main__",
+                    "module": "src.XEntropyAugmented",
                     "cls": "XEntropyAugmented",
                     "name": "XEntropyAugmented"
                 }
@@ -51,7 +51,7 @@
             {
                 "_type": "ZnTrackType",
                 "value": {
-                    "module": "__main__",
+                    "module": "src.MaxEntropyL1",
                     "cls": "MaxEntropyL1",
                     "name": "MaxEntropyL1"
                 }
@@ -59,7 +59,7 @@
             {
                 "_type": "ZnTrackType",
                 "value": {
-                    "module": "__main__",
+                    "module": "src.MaxEntropyL2",
                     "cls": "MaxEntropyL2",
                     "name": "MaxEntropyL2"
                 }
@@ -70,6 +70,9 @@
         },
         "plot0": "./experiment/x-entropy_augmented_calibration.csv",
         "plot1": "./experiment/max-entropy-L1_augmented_calibration.csv",
-        "plot2": "./experiment/max-entropy-L2_augmented_calibration.csv"
+        "plot2": "./experiment/max-entropy-L2_augmented_calibration.csv",
+        "operation": {
+            "_type": "zn.method"
+        }
     }
 }

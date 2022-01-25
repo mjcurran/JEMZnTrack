@@ -1,12 +1,9 @@
-ComputeRandomNumber:
-    parameter:
-        kwargs:
-            start: 100
-            step: 1
-            stop: 200
-        module: src.ComputeRandomNumber
-        name: Parameter
+epochs: 10
 EvaluateX:
+    operation:
+        kwargs: {}
+        module: src.EvaluateX
+        name: EvalCalibration
     params:
         kwargs:
             data_root: ./dataset
@@ -22,9 +19,13 @@ EvaluateX:
             sigma: 0.03
             uncond: false
             width: 10
-        module: src.EvaluateX
+        module: eval_args
         name: eval_args
 MaxEntropyL1:
+    operation:
+        kwargs: {}
+        module: src.MaxEntropyL1
+        name: TrainerL1
     params:
         kwargs:
             batch_size: 64
@@ -51,9 +52,13 @@ MaxEntropyL1:
             sigma: 0.3
             weight_decay: 0.0
             width: 10
-        module: src.MaxEntropyL1
+        module: train_args
         name: train_args
 MaxEntropyL2:
+    operation:
+        kwargs: {}
+        module: src.MaxEntropyL2
+        name: TrainerL2
     params:
         kwargs:
             batch_size: 64
@@ -80,7 +85,7 @@ MaxEntropyL2:
             sigma: 0.3
             weight_decay: 0.0
             width: 10
-        module: src.MaxEntropyL2
+        module: train_args
         name: train_args
 XEntropyAugmented:
     params:
@@ -109,5 +114,5 @@ XEntropyAugmented:
             sigma: 0.3
             weight_decay: 0.0
             width: 10
-        module: src.XEntropyAugmented
+        module: train_args
         name: train_args

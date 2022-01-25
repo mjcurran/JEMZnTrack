@@ -5,10 +5,10 @@ stages:
     deps:
     - src/XEntropyAugmented.py
     metrics:
-    - experiment/x-entropy_augmented_scores.json:
+    - ./experiment/x-entropy_augmented_scores.json:
         cache: false
     outs:
-    - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
+    - ./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
   MaxEntropyL1:
     cmd: "python3 -c \"from src.MaxEntropyL1 import MaxEntropyL1; MaxEntropyL1.load(name='MaxEntropyL1').run_and_save()\"\
       \ "
@@ -33,12 +33,12 @@ stages:
     cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX.load(name='EvaluateX').run_and_save()\"\
       \ "
     deps:
+    - ./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
+    - ./experiment/x-entropy_augmented_scores.json
     - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
     - experiment/max-entropy-L1_augmented_scores.json
     - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
     - experiment/max-entropy-L2_augmented_scores.json
-    - experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt
-    - experiment/x-entropy_augmented_scores.json
     - src/EvaluateX.py
     plots:
     - ./experiment/max-entropy-L1_augmented_calibration.csv:
