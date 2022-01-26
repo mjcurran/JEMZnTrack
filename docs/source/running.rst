@@ -124,6 +124,10 @@ Example queue script:
     module load pdm
     $(pdm info --package)/bin/dvc exp run --name jemzn-epoch-10 -S epochs=10
 
+The first four lines which start with #$ are arguments to the queue system, in this case signifying
+the job should run on a gpu, using 1 card, the job name is jemzn-epoch-10, and the working directory
+is /afs/crc.nd.edu/user/?/usershomefolder/pythonworkingdir/.  Edit these items to fit your project.
+
 Submit the job to the queue:
 
 .. code-block::
