@@ -17,6 +17,7 @@ from tqdm import tqdm
 import pandas as pd
 from zntrack.metadata import TimeIt
 from train_args import train_args
+from dvc.api import make_checkpoint
 
 
 class TrainerL1(Base):
@@ -169,7 +170,7 @@ class TrainerL1(Base):
         return scores
 
 
-# In[5]:
+# In[3]:
 
 
 
@@ -206,6 +207,6 @@ class MaxEntropyL1(Node):
     
 
 
-# In[6]:
+# In[4]:
 
 

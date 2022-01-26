@@ -43,8 +43,10 @@ Example stages:
 ZnTrack (v0.2) Nodes
 --------------------
 
-**Note:** ZnTrack v0.3 is current as of writing this.  If your environment is configured using python >= 3.8
-you may have ZnTrack v0.3 installed, so some things in this section will return a depracated message when used.
+.. note::
+
+    ZnTrack v0.3 is current as of writing this.  If your environment is configured using python >= 3.8
+    you may have :ref:`ZnTrack v0.3 <zntrackthree>` installed, so some things in this section will return a deprecated message when used.
 
 An alternative to command line dvc in this documentation is `ZnTrack <https://github.com/zincware/ZnTrack>`_, which defines stages
 in python classes.  Using the :code:`@Node()` annotation on a class tells the zntrack module to interpret the class as a pipeline stage,
@@ -167,8 +169,10 @@ Example:
 Executing this code block in a jupyter-notebook results in the file :code:`src/XEntropyAugmented.py` being generated from all the 
 python classes contained in the notebook.  
 
-**Note:** all code you want to be runnable as part of the experiment must be in a class in your noteboook, only classes are extracted
-to the :file:`src/{class}.py` files.
+.. note::
+
+    All code you want to be runnable as part of the experiment must be in a class in your noteboook, only classes are extracted
+    to the :file:`src/{class}.py` files.
 
 Then to create the stage in :code:`dvc.yaml` execute the following:
 
@@ -291,11 +295,15 @@ Practical changes to the code in this document include the following:
 * Python :code:`@dataclass` is supported for parameter inputs, using the :code:`zn.Method()` option.
 * Node dependencies use :code:`node.load()` now instead of :code:`node(load=True)`
 
+.. _zntrackthree:
 
 ZnTrack (v0.3) Nodes
 --------------------
 
-**Note:** ZnTrack v0.3 requires python >= 3.8.
+.. note::
+    
+    ZnTrack v0.3 requires python >= 3.8.  If you plan to run a project using v0.3 on the cluster,
+    see :ref:`otherpythonversions`.
  
 Examples:
 
@@ -398,8 +406,10 @@ The resultant DAG without the argument classes as dependencies is simply this:
 Troubleshooting Pipelines
 -------------------------
 
-*Problem:* You receive an error with return code 255 during the dvc.yaml stage writing.  
-There is likely a dependency path that doesn't exist in your project folder.
+.. error::
+
+    *Problem:* You receive an error with return code 255 during the dvc.yaml stage writing.  
+    There is likely a dependency path that doesn't exist in your project folder.
 
 Example:
 
@@ -438,8 +448,10 @@ If "./data" doesn't exist in your project folder then dvc will return an error w
         if not os.path.exists("./data"):
             os.makedirs("./data")
 
-*Problem:*  Node dependencies are not being written to :code:`dvc.yaml`.
-You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.
+.. error::
+
+    *Problem:*  Node dependencies are not being written to :code:`dvc.yaml`.
+    You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.
 
 Example:
 
@@ -519,11 +531,13 @@ If you don't actually need the dependency then simply move the parameters into t
 Troubleshooting ZnTrack v0.3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*Problem:* You get an error declaring a Node class with node dependencies:
+.. error::
 
-.. code-block::
+    *Problem:* You get an error declaring a Node class with node dependencies:
 
-    AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
+    .. code-block::
+
+        AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
 
 *Solution:*
 
@@ -547,7 +561,9 @@ This is a disadvantage in v0.3 where the :code:`write_graph()` function does bot
 definition.  The :code:`dvc.yaml` file is no different based on setting the deps :code:`.load()` or not, but the class
 behavior when :code:`.run()` is called will be different.
 
-*Problem:* You want to organize your code into seperate notebooks for each stage, but you get circular dependency errors.
+.. error::
+
+    *Problem:* You want to organize your code into seperate notebooks for each stage, but you get circular dependency errors.
 
 The ZnTrack function which converts the classes in your notebook into :code:`.py` files also copies in all 
 :code:`import` statements, so if you have other local imports then pay attention to where they are called.
@@ -555,11 +571,14 @@ If you have several classes which are re-used it may be simpler to just organize
 notebook together rather than worry about precise import statements.
 
 
-*Problem:*  When running an experiment you receive an error:
+.. error::
+    
+    *Problem:*  When running an experiment you receive an error:
 
-.. code-block::
+    .. code-block::
 
-    AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
+        AttributeError: 'NoneType' object has no attribute 'znjson_zn_method'
+
 
 *Solution:*  This should be related to something in your Node class :code:`__init__()`.  Try adding a test to 
 see if the class object is loaded, like so:
@@ -584,8 +603,10 @@ Example:
     model: Path = dvc.outs("./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt")
     metrics: Path = dvc.metrics_no_cache("./experiment/x-entropy_augmented_scores.json")
 
+.. error::
 
-*Problem:*  You see a CalledProcessError when trying to write a graph node and execute.
+    *Problem:*  You see a CalledProcessError when trying to write a graph node and execute.
+
 
 Example:
 
@@ -609,3 +630,26 @@ Example:
 
 This is the equivalent command from the error above, running it should give you the actual python error which is stopping execution instead
 of a shell error.
+
+
+.. error::
+
+    *Problem:*  When calling :code:`write_graph()` on a Node you see an AttributeError
+
+    .. code-block::
+
+        AttributeError: 'XEntropyAugmented' object has no attribute 'zntrack'
+
+
+You may have mismatched versions of python and ZnTrack. 
+*Solution:*  The best thing to do in this instance is refresh all your pdm managed packages.
+
+.. code-block:: bash
+
+    rm -rf __pypackages__
+
+    pdm init
+
+    pdm add zntrack
+    pdm add torchvision
+    pdm add jupyter

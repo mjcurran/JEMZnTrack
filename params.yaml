@@ -1,4 +1,3 @@
-epochs: 10
 EvaluateX:
     operation:
         kwargs: {}
@@ -116,3 +115,4 @@ XEntropyAugmented:
             width: 10
         module: train_args
         name: train_args
+epochs: 10
