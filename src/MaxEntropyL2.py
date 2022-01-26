@@ -8,7 +8,6 @@ import numpy as np
 from jemsharedclasses import Base, JEMUtils, FTrain, DataSubset
 import pdb
 import json
-from matplotlib import pyplot as plt
 from numpy import genfromtxt
 import yaml
 from pathlib import Path
