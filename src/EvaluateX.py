@@ -8,7 +8,6 @@ import numpy as np
 from jemsharedclasses import Base, JEMUtils, F2, CCF, DataSubset
 import pdb
 import json
-from matplotlib import pyplot as plt
 from numpy import genfromtxt
 import yaml
 from pathlib import Path
@@ -30,10 +29,10 @@ class EvalCalibration(Base):
             os.makedirs(params.save_dir)
         
         if params.print_to_log:
-            sys.stdout = open(f'{os.path.join(params.save_dir, args.experiment)}/log.txt', 'w')
+            sys.stdout = open(f'{os.path.join(params.save_dir, args.params.experiment)}/log.txt', 'w')
 
-        if not os.path.exists(os.path.join(params.save_dir, args.experiment)):
-            os.makedirs(os.path.join(params.save_dir, args.experiment))
+        if not os.path.exists(os.path.join(params.save_dir, args.params.experiment)):
+            os.makedirs(os.path.join(params.save_dir, args.params.experiment))
 
         t.manual_seed(params.seed)
         if t.cuda.is_available():
@@ -43,10 +42,10 @@ class EvalCalibration(Base):
 
         model_cls = F2 if params.uncond else CCF
         f = model_cls(params.depth, params.width, params.norm)
-        print(f"loading model from {os.path.join(os.path.join(params.load_path, args.experiment), 'last_ckpt.pt')}")
+        print(f"loading model from {os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt')}")
 
         # load em up
-        ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.experiment), 'last_ckpt.pt'))
+        ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt'))
         f.load_state_dict(ckpt_dict["model_state_dict"])
         #replay_buffer = ckpt_dict["replay_buffer"]
 
@@ -126,12 +125,12 @@ class EvalCalibration(Base):
     
         # save calibration  in a text file
             
-        pd.DataFrame({'accuracy': accu, 'ECE': ECE}).to_csv(path_or_buf=os.path.join(params.save_dir, args.experiment) + "_calibration.csv", index_label="index")
-        outputcsv = os.path.join(params.save_dir, args.experiment) + "_calibration.csv"
+        pd.DataFrame({'accuracy': accu, 'ECE': ECE}).to_csv(path_or_buf=os.path.join(params.save_dir, args.params.experiment) + "_calibration.csv", index_label="index")
+        outputcsv = os.path.join(params.save_dir, args.params.experiment) + "_calibration.csv"
         return outputcsv
 
 
-# In[6]:
+# In[3]:
 
 
 class EvaluateX(Node):
@@ -169,6 +168,7 @@ class EvaluateX(Node):
 
     def run(self):
         for arg in self.models:
+            arg.load()
             self.operation.compute(arg, self.params)
             #with open('./experiment/joint_energy_models_scores.json', 'a') as outfile:
             #    json.dump(scores, outfile)
@@ -177,6 +177,6 @@ class EvaluateX(Node):
     
 
 
-# In[7]:
+# In[4]:
 
 
