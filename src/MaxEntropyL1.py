@@ -169,15 +169,18 @@ class TrainerL1(Base):
         return scores
 
 
-# In[3]:
+# In[7]:
 
 
 
 class MaxEntropyL1(Node):
     params: train_args = zn.Method()
-    metrics: Path = dvc.metrics_no_cache()
-    model: Path = dvc.outs()
+    #metrics: Path = dvc.metrics_no_cache()
+    #model: Path = dvc.outs()
     # manually add checkpoint: true to the outs in dvc.yaml
+    
+    model: Path = dvc.outs("./experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt")
+    metrics: Path = dvc.metrics_no_cache("./experiment/max-entropy-L1_augmented_scores.json") 
     
     operation: Base = zn.Method()
             
@@ -193,8 +196,8 @@ class MaxEntropyL1(Node):
         if params != None and not os.path.exists(os.path.join(params.save_dir, params.experiment)):
             os.makedirs(os.path.join(params.save_dir, params.experiment))
             
-        self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
-        self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
+        #self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
+        #self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
     
 
     def run(self):
@@ -206,6 +209,6 @@ class MaxEntropyL1(Node):
     
 
 
-# In[4]:
+# In[8]:
 
 

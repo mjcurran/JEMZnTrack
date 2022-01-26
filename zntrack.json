@@ -10,14 +10,8 @@
         "params": {
             "_type": "zn.method"
         },
-        "metrics": {
-            "_type": "pathlib.Path",
-            "value": "experiment/max-entropy-L1_augmented_scores.json"
-        },
-        "model": {
-            "_type": "pathlib.Path",
-            "value": "experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt"
-        },
+        "metrics": "./experiment/max-entropy-L1_augmented_scores.json",
+        "model": "./experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt",
         "operation": {
             "_type": "zn.method"
         }
@@ -26,14 +20,8 @@
         "params": {
             "_type": "zn.method"
         },
-        "metrics": {
-            "_type": "pathlib.Path",
-            "value": "experiment/max-entropy-L2_augmented_scores.json"
-        },
-        "model": {
-            "_type": "pathlib.Path",
-            "value": "experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt"
-        },
+        "metrics": "./experiment/max-entropy-L2_augmented_scores.json",
+        "model": "./experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt",
         "operation": {
             "_type": "zn.method"
         }

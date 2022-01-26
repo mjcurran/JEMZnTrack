@@ -15,9 +15,9 @@ stages:
     deps:
     - src/MaxEntropyL1.py
     outs:
-    - experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
+    - ./experiment/max-entropy-L1_augmented/ckpt_max-entropy-L1_augmented.pt
     metrics:
-    - experiment/max-entropy-L1_augmented_scores.json:
+    - ./experiment/max-entropy-L1_augmented_scores.json:
         cache: false
   MaxEntropyL2:
     cmd: "python3 -c \"from src.MaxEntropyL2 import MaxEntropyL2; MaxEntropyL2.load(name='MaxEntropyL2').run_and_save()\"\
@@ -25,9 +25,9 @@ stages:
     deps:
     - src/MaxEntropyL2.py
     outs:
-    - experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
+    - ./experiment/max-entropy-L2_augmented/ckpt_max-entropy-L2_augmented.pt
     metrics:
-    - experiment/max-entropy-L2_augmented_scores.json:
+    - ./experiment/max-entropy-L2_augmented_scores.json:
         cache: false
   EvaluateX:
     cmd: "python3 -c \"from src.EvaluateX import EvaluateX; EvaluateX.load(name='EvaluateX').run_and_save()\"\
