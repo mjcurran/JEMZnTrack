@@ -11,6 +11,16 @@ The dvc api for python has a `make_checkpoint <https://dvc.org/doc/api-reference
 called in code when ever you choose.  Its result is to create a cache of every tracked file which has changed,
 and create a git commit to track this revision.
 
+.. code-block::
+
+    from dvc.api import make_checkpoint
+
+    # ... do some training
+
+    if epoch % 5 == 0:
+        # save your tracked model file, and then ...
+        make_checkpoint()
+
 When you've made some checkpoints you can use:
 
 .. code-block::
