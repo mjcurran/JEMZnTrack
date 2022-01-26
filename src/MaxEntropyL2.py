@@ -17,6 +17,7 @@ from tqdm import tqdm
 import pandas as pd
 from zntrack.metadata import TimeIt
 from train_args import train_args
+from dvc.api import make_checkpoint
 
 
 class TrainerL2(Base):

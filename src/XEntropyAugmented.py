@@ -16,6 +16,7 @@ from tqdm import tqdm
 import pandas as pd
 from zntrack.metadata import TimeIt
 from train_args import train_args
+from dvc.api import make_checkpoint
 
 
 class Trainer(Base):
@@ -158,7 +159,7 @@ class Trainer(Base):
         return scores
 
 
-# In[6]:
+# In[2]:
 
 
 #Do the operations from train.ipynb and track in dvc
@@ -329,7 +330,7 @@ class XEntropyAugmented(Node):
         return scores
 
 
-# In[8]:
+# In[3]:
 
 
 
