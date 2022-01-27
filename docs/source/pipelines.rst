@@ -209,6 +209,12 @@ Next declare the :code:`XEntropyAugmented` object, an object to be used as its :
     runner = XEntropyAugmented()
     runner(operation=trainer)
 
+.. warning::
+
+    Arguments in the :code:`dvc.yaml` file that do not have explicit types in ZnTrack, such as 
+    :code:`template` or :code:`checkpoint` will be overwritten when the Node class is called, 
+    and must be manually added back.
+
 
 For convenience and readability we're using another class to do the actual work, in this case called :code:`Trainer`.
 This class can be anything, but in this example we've declared a base class, called :code:`Base`, and then derive
@@ -352,8 +358,8 @@ individually.
     
         params: train_args = zn.Method()
         
-        model: Path = dvc.outs()
-        metrics: Path = dvc.metrics_no_cache() 
+        model: Path = dvc.outs("./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt")
+        metrics: Path = dvc.metrics_no_cache("./experiment/x-entropy_augmented_scores.json") 
     
         def __init__(self, params: train_args = None, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -364,9 +370,7 @@ individually.
             if not self.is_loaded:
                 self.params = train_args(experiment='x-entropy_augmented')
 
-            self.metrics = Path(os.path.join(self.params.save_dir, self.params.experiment) + '_scores.json')
-            self.model = Path(os.path.join(os.path.join(self.params.save_dir, self.params.experiment), f'ckpt_{self.params.experiment}.pt'))
-        
+            
 
         def run(self):
             scores = self.compute(self.params)
@@ -406,10 +410,9 @@ The resultant DAG without the argument classes as dependencies is simply this:
 Troubleshooting Pipelines
 -------------------------
 
-.. error::
 
-    *Problem:* You receive an error with return code 255 during the dvc.yaml stage writing.  
-    There is likely a dependency path that doesn't exist in your project folder.
+
+**Problem: You receive an error with return code 255 during the dvc.yaml stage writing. There is likely a dependency path that doesn't exist in your project folder.**
 
 Example:
 
@@ -448,10 +451,7 @@ If "./data" doesn't exist in your project folder then dvc will return an error w
         if not os.path.exists("./data"):
             os.makedirs("./data")
 
-.. error::
-
-    *Problem:*  Node dependencies are not being written to :code:`dvc.yaml`.
-    You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.
+**Problem:  Node dependencies are not being written to :code:`dvc.yaml`. You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.**
 
 Example:
 
@@ -531,9 +531,7 @@ If you don't actually need the dependency then simply move the parameters into t
 Troubleshooting ZnTrack v0.3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. error::
-
-    *Problem:* You get an error declaring a Node class with node dependencies:
+**Problem: You get an error declaring a Node class with node dependencies:**
 
     .. code-block::
 
@@ -561,9 +559,22 @@ This is a disadvantage in v0.3 where the :code:`write_graph()` function does bot
 definition.  The :code:`dvc.yaml` file is no different based on setting the deps :code:`.load()` or not, but the class
 behavior when :code:`.run()` is called will be different.
 
-.. error::
+Another option that may work is to call :code:`.load()` on your dependencies in the :code:`.run()` function
+of the stage.
 
-    *Problem:* You want to organize your code into seperate notebooks for each stage, but you get circular dependency errors.
+Example:
+
+.. code-block::
+
+    models = dvc.deps([XEntropyAugmented(), MaxEntropyL1(), MaxEntropyL2()])
+
+    def run(self):
+        for arg in self.models:
+            arg.load()  # load the models here, because it doesn't work in the deps declaration
+            self.operation.compute(arg, self.params)
+
+
+**Problem: You want to organize your code into seperate notebooks for each stage, but you get circular dependency errors.**
 
 The ZnTrack function which converts the classes in your notebook into :code:`.py` files also copies in all 
 :code:`import` statements, so if you have other local imports then pay attention to where they are called.
@@ -571,9 +582,7 @@ If you have several classes which are re-used it may be simpler to just organize
 notebook together rather than worry about precise import statements.
 
 
-.. error::
-    
-    *Problem:*  When running an experiment you receive an error:
+**Problem:  When running an experiment you receive an error:**
 
     .. code-block::
 
@@ -594,7 +603,7 @@ see if the class object is loaded, like so:
 
 You may also have to set some values in the class definition even if you are assigning paths to metrics, or anything
 else within the :code:`__init__()`.  It may be tempting to keep these things totally dynamic, but that may introduce
-dvc file tracking issues
+dvc file tracking issues.
 
 Example:
 
@@ -603,9 +612,7 @@ Example:
     model: Path = dvc.outs("./experiment/x-entropy_augmented/ckpt_x-entropy_augmented.pt")
     metrics: Path = dvc.metrics_no_cache("./experiment/x-entropy_augmented_scores.json")
 
-.. error::
-
-    *Problem:*  You see a CalledProcessError when trying to write a graph node and execute.
+**Problem:  You see a CalledProcessError when trying to write a graph node and execute.**
 
 
 Example:
@@ -632,9 +639,7 @@ This is the equivalent command from the error above, running it should give you 
 of a shell error.
 
 
-.. error::
-
-    *Problem:*  When calling :code:`write_graph()` on a Node you see an AttributeError
+**Problem:  When calling :code:`write_graph()` on a Node you see an AttributeError**
 
     .. code-block::
 
@@ -642,6 +647,7 @@ of a shell error.
 
 
 You may have mismatched versions of python and ZnTrack. 
+
 *Solution:*  The best thing to do in this instance is refresh all your pdm managed packages.
 
 .. code-block:: bash
