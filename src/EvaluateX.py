@@ -43,11 +43,11 @@ class EvalCalibration(Base):
         model_cls = F2 if params.uncond else CCF
         f = model_cls(params.depth, params.width, params.norm)
         #print(f"loading model from {os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt')}")
-        print(f"loading model from {args.params.model}")
+        print(f"loading model from {args.model}")
 
         # load em up
         #ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt'))
-        ckpt_dict = t.load(args.params.model)
+        ckpt_dict = t.load(args.model)
         f.load_state_dict(ckpt_dict["model_state_dict"])
         #replay_buffer = ckpt_dict["replay_buffer"]
 
@@ -132,7 +132,7 @@ class EvalCalibration(Base):
         return outputcsv
 
 
-# In[3]:
+# In[4]:
 
 
 class EvaluateX(Node):
@@ -179,6 +179,6 @@ class EvaluateX(Node):
     
 
 
-# In[4]:
+# In[5]:
 
 

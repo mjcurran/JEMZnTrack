@@ -8,18 +8,18 @@
 set -e
 
 # Setup Modules System
-if [ -r /opt/crc/Modules/current/init/bash ]; then
-    source /opt/crc/Modules/current/init/bash
-fi
+# if [ -r /opt/crc/Modules/current/init/bash ]; then
+#    source /opt/crc/Modules/current/init/bash
+# fi
 
-module use /afs/crc.nd.edu/user/j/jsweet/Public/module/file
+# module use /afs/crc.nd.edu/user/j/jsweet/Public/module/file
 
 # Run job
-module load pdm
+# module load pdm
 $(pdm info --package)/bin/dvc exp run --name jemzn-epoch-10 -S epochs=10
 
-date > metrics.diff
-$(pdm info --package)/bin/dvc metrics diff >> metrics.diff
+# date > metrics.diff
+# $(pdm info --package)/bin/dvc metrics diff >> metrics.diff
 
 # Requires ssh deploy key without password
 # $(pdm info --package)/bin/dvc push origin jem-epoch-10
