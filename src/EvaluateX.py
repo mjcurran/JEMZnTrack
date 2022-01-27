@@ -42,10 +42,12 @@ class EvalCalibration(Base):
 
         model_cls = F2 if params.uncond else CCF
         f = model_cls(params.depth, params.width, params.norm)
-        print(f"loading model from {os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt')}")
+        #print(f"loading model from {os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt')}")
+        print(f"loading model from {args.params.model}")
 
         # load em up
-        ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt'))
+        #ckpt_dict = t.load(os.path.join(os.path.join(params.load_path, args.params.experiment), 'last_ckpt.pt'))
+        ckpt_dict = t.load(args.params.model)
         f.load_state_dict(ckpt_dict["model_state_dict"])
         #replay_buffer = ckpt_dict["replay_buffer"]
 
