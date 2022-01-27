@@ -125,8 +125,12 @@ Example queue script:
     $(pdm info --package)/bin/dvc exp run --name jemzn-epoch-10 -S epochs=10
 
 The first four lines which start with #$ are arguments to the queue system, in this case signifying
-the job should run on a gpu, using 1 card, the job name is jemzn-epoch-10, and the working directory
+the job should run on the :code:`gpu` queue, using resources of 1 gpu_card, the job name is jemzn-epoch-10, and the working directory
 is /afs/crc.nd.edu/user/?/usershomefolder/pythonworkingdir/.  Edit these items to fit your project.
+
+The :code:`-wd path` option can be replaced with :code:`-cwd` if your script is in the project working folder.
+
+See the man pages for :code:`qsub` for more options.
 
 Submit the job to the queue:
 
