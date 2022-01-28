@@ -451,7 +451,9 @@ If "./data" doesn't exist in your project folder then dvc will return an error w
         if not os.path.exists("./data"):
             os.makedirs("./data")
 
-**Problem:  Node dependencies are not being written to :code:`dvc.yaml`. You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.**
+**Problem:  Node dependencies are not being written to dvc.yaml.** 
+
+You may be declaring a dependency that does not write a :code:`dvc` or :code:`git` tracked output file.
 
 Example:
 
@@ -496,7 +498,7 @@ functions that can be used in a pinch.
     @Node()
     class TrainArgs:
 
-        result = zn.metrics()
+        result = zn.metrics()  # this will write a file
 
         epochs = dvc.params()
         lr = dvc.params()
@@ -507,7 +509,7 @@ functions that can be used in a pinch.
             self.lr = lr
 
         def run(self):
-            pass
+            self.result = 1
 
 If you don't actually need the dependency then simply move the parameters into the other class.
 
@@ -550,16 +552,18 @@ Change this:
 
 To this:
 
+.. code-block::
+
     models = dvc.deps([XEntropyAugmented(), MaxEntropyL1(), MaxEntropyL2()])
 
 Then run the cell with your Node class, execute :code:`write_graph()`, and then change it back after running :code:`repro()`.
 
 Alternatively, you may have to run the stages that become dependencies before declaring the stage that will load the outputs.
 This is a disadvantage in v0.3 where the :code:`write_graph()` function does both the notebook conversion and the stage :code:`dvc.yaml` 
-definition.  The :code:`dvc.yaml` file is no different based on setting the deps :code:`.load()` or not, but the class
-behavior when :code:`.run()` is called will be different.
+definition.  The :code:`dvc.yaml` file is no different based on setting the deps :code:`load()` or not, but the class
+behavior when :code:`run()` is called will be different.
 
-Another option that may work is to call :code:`.load()` on your dependencies in the :code:`.run()` function
+Another option that may work is to call :code:`load()` on your dependencies in the :code:`run()` function
 of the stage.
 
 Example:
@@ -639,7 +643,7 @@ This is the equivalent command from the error above, running it should give you 
 of a shell error.
 
 
-**Problem:  When calling :code:`write_graph()` on a Node you see an AttributeError**
+**Problem:  When calling write_graph() on a Node you see an AttributeError**
 
     .. code-block::
 
