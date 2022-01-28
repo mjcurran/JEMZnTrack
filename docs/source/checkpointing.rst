@@ -62,6 +62,11 @@ When using it with `DVC <https://dvc.org/doc/dvclive/dvclive-with-dvc>`_ it requ
 :code:`dvc.yaml` file.  See the linked dvc documentation.  You will need to add a :code:`live` section to your dvc stages
 where you want to use DVCLive, and underneath that give a folder name where the metrics are to be stored.
 
+.. warning::
+
+    DVCLive will try to checkpoint all your metrics listed in :code:`dvc.yaml`, and throw an error if they do not exist yet,
+    so make sure they are explicitly created in your code before the :code:`next_step()` is called.
+
 Example:
 
 .. code-block::
